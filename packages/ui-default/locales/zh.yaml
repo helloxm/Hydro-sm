@@ -700,6 +700,7 @@ problem_solution: 题解
 problem_submit: 递交代码
 problem_type.default: 传统题
 problem_type.interactive: 交互题
+problem_type.communication: 通信题
 problem_type.objective: 客观题
 problem_type.remote_judge: 远端评测题
 problem_type.submit_answer: 提交答案题
@@ -861,6 +862,7 @@ Sorry, there are no users in this domain.: 对不起，此课程中没有用户�
 Sorry: 对不起
 Sort by: 排序
 Source type: 来源类型
+Source: 来源
 Standard mode: 标准模式
 Standard Program: 标准程序
 Star Topic: 收藏讨论
