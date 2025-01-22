@@ -3,6 +3,7 @@
 cp ../packages/hydrooj/src/lib/ui.ts /usr/local/share/.config/yarn/global/node_modules/hydrooj/src/lib/ui.ts -rf
 cp ../packages/hydrooj/src/interface.ts /usr/local/share/.config/yarn/global/node_modules/hydrooj/src/interface.ts -rf
 cp ../packages/hydrooj/src/model/domain.ts /usr/local/share/.config/yarn/global/node_modules/hydrooj/src/model/domain.ts -rf 
+cp ../packages/hydrooj/src/model/contest.ts /usr/local/share/.config/yarn/global/node_modules/hydrooj/src/model/contest.ts -rf 
 cp ../packages/hydrooj/src/model/setting.ts /usr/local/share/.config/yarn/global/node_modules/hydrooj/src/model/setting.ts -rf 
 cp ../packages/hydrooj/src/model/builtin.ts /usr/local/share/.config/yarn/global/node_modules/hydrooj/src/model/builtin.ts -rf 
 cp ../packages/hydrooj/src/handler/domain.ts /usr/local/share/.config/yarn/global/node_modules/hydrooj/src/handler/domain.ts -rf 

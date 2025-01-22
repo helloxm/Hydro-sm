@@ -257,7 +257,7 @@ class HomeworkEditHandler extends Handler {
   @param("title", Types.Title)
   @param("content", Types.Content)
   @param("pids", Types.Content)
-  @param("ppt", Types.Content)
+  @param("ppt", Types.Content, true)
   @param("rated", Types.Boolean)
   @param("maintainer", Types.NumericArray, true)
   @param("assign", Types.CommaSeperatedArray, true)

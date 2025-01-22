@@ -66,7 +66,7 @@ export function isLocked(tdoc: Tdoc, time = new Date()) {
 
 export function isExtended(tdoc: Tdoc) {
     const now = new Date().getTime();
-    return tdoc.penaltySince.getTime() <= now && now < tdoc.endAt.getTime();
+    return tdoc.penaltySince?.getTime() <= now && now < tdoc.endAt.getTime();
 }
 
 export function buildContestRule<T>(def: Optional<ContestRule<T>, 'applyProjection'>): ContestRule<T>;
