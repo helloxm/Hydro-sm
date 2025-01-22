@@ -222,11 +222,7 @@ class HomeworkEditHandler extends Handler {
           .millisecond(0);
     const penaltySince = tid
       ? moment(tdoc.penaltySince).tz(this.user.timeZone)
-      : moment("2099-12-31 00:00:00")
-          .tz(this.user.timeZone)
-          .hour(23)
-          .minute(59)
-          .millisecond(0);
+      : moment('2099-12-31').tz(this.user.timeZone).hour(23).minute(59).millisecond(0);
     this.response.template = "homework_edit.html";
     this.response.body = {
       tdoc,
