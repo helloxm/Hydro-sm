@@ -265,9 +265,9 @@ class SystemUserImportHandler extends SystemHandler {
                     const uid = await user.create(udoc.email, udoc.username, udoc.password);
                     // add to default course 'system
                     await domain.setUserRole('system', uid, 'Free');
-		    await user.setById(uid, {
-			     pinnedDomains: ['system'],
-      			}),
+                    await user.setById(uid, {
+                        pinnedDomains: ['system'],
+                    }),
                     mapping[udoc.email] = uid;
                     if (udoc.displayName) await domain.setUserInDomain(domainId, uid, { displayName: udoc.displayName });
                     if (udoc.school) await user.setById(uid, { school: udoc.school });
@@ -332,8 +332,8 @@ class SystemUserListHandler extends SystemHandler {
     @requireSudo
     async get() {
         const defaultPriv = system.get('default.list');
-        const udocs = await user.getMulti({ _id: { $gte: -1000, $ne: 1 }}).limit(1000).sort({ _id: 1 }).toArray();
-        //const banudocs = await user.getMulti({ _id: { $gte: -1000, $ne: 1 }, priv: 0 }).limit(1000).sort({ _id: 1 }).toArray();
+        const udocs = await user.getMulti({ _id: { $gte: -1000, $ne: 1 } }).limit(1000).sort({ _id: 1 }).toArray();
+        // const banudocs = await user.getMulti({ _id: { $gte: -1000, $ne: 1 }, priv: 0 }).limit(1000).sort({ _id: 1 }).toArray();
         this.response.body = {
             udocs: [...udocs],
             defaultPriv,
@@ -348,12 +348,12 @@ class SystemUserListHandler extends SystemHandler {
     async postSetBan(domainId: string, uid: number) {
         const udoc = await user.getById(domainId, uid);
         if (udoc.priv === -1) throw new CannotEditSuperAdminError();
-       
-        await user.setPriv(uid, PRIV.PRIV_NONE); // 0: NONE 
+
+        await user.setPriv(uid, PRIV.PRIV_NONE); // 0: NONE
         this.ctx.broadcast('user/delcache', true);
-        
-        this.response.redirect = this.url("manage_user_list", {
-            query: { notification: "禁用成功" },
+
+        this.response.redirect = this.url('manage_user_list', {
+            query: { notification: '禁用成功' },
         });
     }
 
@@ -362,11 +362,11 @@ class SystemUserListHandler extends SystemHandler {
     async postSetOpen(domainId: string, uid: number) {
         const udoc = await user.getById(domainId, uid);
         if (udoc.priv === -1) throw new CannotEditSuperAdminError();
-       
-        await user.setPriv(uid, PRIV.PRIV_USER_PROFILE|PRIV.PRIV_SEND_MESSAGE|PRIV.PRIV_REGISTER_USER); 
+
+        await user.setPriv(uid, PRIV.PRIV_USER_PROFILE | PRIV.PRIV_SEND_MESSAGE | PRIV.PRIV_REGISTER_USER);
         this.ctx.broadcast('user/delcache', true);
-        this.response.redirect = this.url("manage_user_list", {
-            query: { notification: "已放行" },
+        this.response.redirect = this.url('manage_user_list', {
+            query: { notification: '已放行' },
         });
     }
 
@@ -375,16 +375,16 @@ class SystemUserListHandler extends SystemHandler {
     async postSetDel(domainId: string, uid: number) {
         const udoc = await user.getById(domainId, uid);
         if (udoc.priv === -1) throw new CannotEditSuperAdminError();
-       
+
         const tid = await ScheduleModel.add({
             executeAfter: moment().add(7, 'days').toDate(),
             type: 'script',
             id: 'deleteUser',
-            args: { uid: uid },
+            args: { uid },
         });
         await user.setById(uid, { del: tid });
-        this.response.redirect = this.url("manage_user_list", {
-            query: { notification: "删除成功" },
+        this.response.redirect = this.url('manage_user_list', {
+            query: { notification: '删除成功' },
         });
     }
 
@@ -393,12 +393,12 @@ class SystemUserListHandler extends SystemHandler {
     async postResetPassword(domainId: string, uid: number) {
         const udoc = await user.getById(domainId, uid);
         if (udoc.priv === -1) throw new CannotEditSuperAdminError();
-   
-        const password:string = "123456";
+
+        const password:string = '123456';
         await user.setPassword(uid, password);
-            
-        this.response.redirect = this.url("manage_user_list", {
-            query: { notification: "reset passowrd: "+password },
+
+        this.response.redirect = this.url('manage_user_list', {
+            query: { notification: `reset passowrd: ${password}` },
         });
     }
 }

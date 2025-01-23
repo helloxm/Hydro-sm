@@ -54,17 +54,17 @@ class DomainEditHandler extends ManageHandler {
     async post(args) {
         if (args.operation) return;
         const $set = {};
-       // const booleanKeys = args.booleanKeys || {};
- 	$set['hidden']=false;
-    	if (args['hidden'] === 'on') {
- 	    $set['hidden']=true;
+        // const booleanKeys = args.booleanKeys || {};
+        $set['hidden'] = false;
+        if (args['hidden'] === 'on') {
+            $set['hidden'] = true;
             delete args.hidden;
-	}
+        }
         for (const key in args) {
             if (DOMAIN_SETTINGS_BY_KEY[key]) $set[key] = args[key];
         }
         await domain.edit(args.domainId, $set);
-        this.response.redirect = this.url('domain_dashboard',  { query: { notification: "save successfully!" } });
+        this.response.redirect = this.url('domain_dashboard', { query: { notification: 'save successfully!' } });
     }
 }
 
@@ -188,7 +188,7 @@ class DomainRoleHandler extends ManageHandler {
         this.response.template = 'domain_role.html';
         this.response.body = { roles, domain: this.domain };
     }
-    
+
     @requireSudo
     @param('role', Types.Role)
     async postAdd(domainId: string, role: string) {

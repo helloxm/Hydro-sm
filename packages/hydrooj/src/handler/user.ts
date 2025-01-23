@@ -284,7 +284,7 @@ class UserRegisterWithCodeHandler extends Handler {
         if (Object.keys(this.tdoc.setInDomain || {}).length) await domain.setUserInDomain(domainId, uid, this.tdoc.setInDomain);
         if (this.tdoc.oauth) await oauth.set(this.tdoc.oauth[1], uid);
 
-	// default setting
+        // default setting
         await domain.setUserRole('system', uid, 'Free');
         await user.setById(uid, { pinnedDomains: ['system'] }),
 
@@ -305,7 +305,7 @@ class UserRegisterWithManualHandler extends Handler {
     async get() {
         this.tdoc = {};
         this.tdoc.mail = `${String.random(12)}@hydro.local`;
-        this.tdoc.password = "asdfzxcv";
+        this.tdoc.password = 'asdfzxcv';
         this.response.template = 'user_register_with_manual.html';
         this.response.body = this.tdoc;
     }
@@ -315,12 +315,12 @@ class UserRegisterWithManualHandler extends Handler {
     @param('password', Types.Password)
     @param('uname', Types.Username)
     async post(
-        domainId: string, mail: string, password: string, 
-        uname: string
+        domainId: string, mail: string, password: string,
+        uname: string,
     ) {
         if (!Types.Username[1](uname)) throw new ValidationError('uname');
         const uid = await user.create(mail, uname, password, undefined, this.request.ip);
-        this.response.redirect= this.url('user_register_with_manual', {query: {Notification: "add user successfully"}})
+        this.response.redirect = this.url('user_register_with_manual', { query: { Notification: 'add user successfully' } });
     }
 }
 
