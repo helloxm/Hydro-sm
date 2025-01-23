@@ -1,8 +1,7 @@
+import crypto from 'crypto';
 import {
     Context, Handler, superagent, SystemModel, TokenModel, UserFacingError,
 } from 'hydrooj';
-
-import crypto from 'crypto';
 
 declare module 'hydrooj' {
     interface SystemKeys {
@@ -20,37 +19,35 @@ async function get(this: Handler) {
     ]);
 
     // 通过appid，appsecret 生成 accessToken
-    const accessTokenUrl = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid="+appid+"&secret="+appsecret;
-    
+    const accessTokenUrl = `https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=${appid}&secret=${appsecret}`;
+
     // 从数据库读取accessToken和expiretime，看是否为空或者超时，重新请求
-    let accessToken = "";
+    let accessToken = '';
     accessToken = await superagent.get(accessTokenUrl);
-    //save accessToken 和 expire time
-
-
+    // save accessToken 和 expire time
 
     // 生成二维码；
     // https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=
-    const qrcodeGenerateUrl = "https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token="+accessToken;
-    //String jsonData = "{\"expire_seconds\": 600, \"action_name\": \"QR_STR_SCENE\", \"action_info\": {\"scene\": {\"scene_str\": \"login\"}}}";
+    const qrcodeGenerateUrl = `https://api.weixin.qq.com/cgi-bin/qrcode/create?access_token=${accessToken}`;
+    // String jsonData = "{\"expire_seconds\": 600, \"action_name\": \"QR_STR_SCENE\", \"action_info\": {\"scene\": {\"scene_str\": \"login\"}}}";
 
     const qrcodeData = await superagent.get(qrcodeGenerateUrl).send({
         expire_seconds: 600,
-        action_name: "QR_STR_SCENE",
+        action_name: 'QR_STR_SCENE',
         action_info: {
             scene: {
-                scene_str: "login"
-            }
-        }
-    })
+                scene_str: 'login',
+            },
+        },
+    });
     const ticket = qrcodeData['ticket'];
-    // 显示二维码图片 
-    const qrcodeUrl ="https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket="+ticket;
+    // 显示二维码图片
+    const qrcodeUrl = `https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=${ticket}`;
 
     // ui show qrcode
 
     // eslint-disable-next-line max-len
-    //this.response.redirect = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${appid}&response_type=code&redirect_uri=${url}oauth/google/callback&scope=https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile&state=${state}`;
+    // this.response.redirect = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${appid}&response_type=code&redirect_uri=${url}oauth/google/callback&scope=https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile&state=${state}`;
 }
 
 function unescapedString(escapedString: string) {
@@ -110,38 +107,36 @@ function sha1(data) {
     return crypto.createHash('sha1').update(data).digest('hex');
 }
 
-//https://blog.csdn.net/shenZi_bachong/article/details/136481829
+// https://blog.csdn.net/shenZi_bachong/article/details/136481829
 class WechatcheckHandler extends Handler {
     async get(signature: string, timestamp: string, nonce: string, echostr: string) {
         const [token] = await Promise.all([
             SystemModel.get('login-with-wechat.checkToken'),
         ]);
 
-        let raws = [token, timestamp, nonce];
+        const raws = [token, timestamp, nonce];
         raws.sort();
-        let rawtext = "";
-        raws.forEach(e =>{
+        let rawtext = '';
+        raws.forEach((e) => {
             rawtext += e;
-        })
-        //MessageDigest.getInstance("SHA-1"); 
-        let hexRawtext = crypto.createHash('sha1').update(rawtext).digest('hex');
-        
+        });
+        // MessageDigest.getInstance("SHA-1");
+        const hexRawtext = crypto.createHash('sha1').update(rawtext).digest('hex');
+
         // 产生16进制串， 与 signature比较
         if (hexRawtext === signature) {
             this.response.body = echostr;
         } else {
-            this.response.body = "error";
+            this.response.body = 'error';
         }
-
     }
-
 }
 
 export function apply(ctx: Context) {
-    ctx.Route("wx", "/wechat/check", WechatcheckHandler);
+    ctx.Route('wx', '/wechat/check', WechatcheckHandler);
     ctx.provideModule('oauth', 'wechat', {
         text: 'Login with Wechat',
-        //icon: 微信图标
+        // icon: 微信图标
         callback,
         get,
     });
