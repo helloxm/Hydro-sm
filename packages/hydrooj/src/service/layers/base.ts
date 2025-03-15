@@ -67,6 +67,10 @@ export default async (ctx: KoaContext, next: Next) => {
             options.sameSite = 'none';
             options.secure = true;
         }
+        else if (system.get('session.domain') && ctx.request.secure && system.get('session.domain').includes('localhost')) {
+            options.sameSite = 'none';
+            options.secure = true;
+        }
         ctx.cookies.set('sid', ctx.session._id, options);
     }
 };
