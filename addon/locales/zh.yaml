@@ -81,7 +81,7 @@ homework_create: 创建课时
 homework_detail_problem_submit: 递交作业题目
 homework_edit: 编辑课时
 homework_main: 课时
-homework_scoreboard: 作业成绩表
+homework_scoreboard: 成绩表
 homework_status: 作业成绩表
 In following homework: 在以下课时中
 perm_homework: 课时
@@ -90,7 +90,7 @@ There is no homework so far ╰(*°▽°*)╯: 目前还没有安排上课 ╰(*
 This homework is not open and you cannot view problems.: 该作业还未到开放时间，您无法查看作业题目。
 This homework is not open.: 该作业还未开放递交。
 View hidden homework submission status and scoreboard: 查看隐藏的作业递交状态和成绩表
-View homework scoreboard: 查看作业成绩表
+View homework scoreboard: 查看成绩表
 You cannot submit for this problem because the homework's deadline is due.: 课时已超过截止时间，您无法递交本题目。
 You haven't claimed this homework yet.: 您还未认领过该作业。
 You've already claimed this homework.: 您已认领过该作业。
