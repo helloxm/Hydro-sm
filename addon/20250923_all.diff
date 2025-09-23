@@ -1,0 +1,1165 @@
+diff --git a/packages/hydrojudge/vendor/testlib b/packages/hydrojudge/vendor/testlib
+deleted file mode 160000
+index 9ecb1112..00000000
+--- a/packages/hydrojudge/vendor/testlib
++++ /dev/null
+@@ -1 +0,0 @@
+-Subproject commit 9ecb11126c16caeda2ba375e0084b3ddd03d4ace
+diff --git a/packages/hydrooj/setting.yaml b/packages/hydrooj/setting.yaml
+index a6dd5b67..b1cc1190 100644
+--- a/packages/hydrooj/setting.yaml
++++ b/packages/hydrooj/setting.yaml
+@@ -22,63 +22,16 @@ langs:
+     __hint__:
+       - ~ All keys starting with _ will be ignored
+       - ~ Entries named like [foo], [foo].[bar] [foo].[baz]
+-      - . will be merged into one category.
++      -   will be merged into one category.
+       - ~ A entry named [foo].[bar] will inhert all options
+-      - . defined in entry [foo] if not overwritten
++      -   defined in entry [foo] if not overwritten
+       - ~ code_file option defaults to foo.[name]
+       - ~ highlight option defaults to [name]
+       - ~ if highlight option was set, monaco option defaults
+-      - . to [highlight], otherwise defaults to [name]
++      -   to [highlight], otherwise defaults to [name]
+       - ~ Compiling be be ignored if compile option wasn't set
+       - ~ Key marked with a ? means the option is optional
+       - (name):
+-          disabled?: (boolean) whether to disable this language
+-          hidden?: (boolean) won't show in the language selection
+-          compile?: (string) Compile Command
+-          code_file?: (string) Where to write code file when compiling, defaults to `foo.[name]`
+-          execute: (string) Command to execute the program
+-          highlight?: (string) PrismJS highlight mode
+-          monaco?: (string) Monaco editor mode
+-          time_limit_rate?: (number) Time limit rate
+-          target?: (string) Compiler output file, defaults to `foo`
+-          display: (string) Display name
+-          compile_time_limit?: (number) Compile time limit, in milliseconds
+-          compile_memory_limit?: (number) Compile memory limit, in MB
+-          address_space_limit?: (boolean) Enable address space memory limit as CCF did
+-          process_limit?: (number) Limit the number of thread
+-    bash:
+-      display: Bash
+-      code_file: foo.sh
+-      execute: /bin/bash foo.sh
+-      highlight: bash
+-      version: /bin/bash --version
+-    c:
+-      compile: /usr/bin/gcc -Wall --std=c99 -o foo foo.c -lm
+-      highlight: c
+-      monaco: c
+-      display: C
+-      version: /usr/bin/gcc --version
+-    cc:
+-      compile: /usr/bin/g++ -Wall -std=c++14 -o foo foo.cc -lm -I/include
+-      code_file: foo.cc
+-      highlight: cpp
+-      monaco: cpp
+-      display: C++
+-      address_space_limit: true
+-      process_limit: 1
+-      version: /usr/bin/g++ --version
+-    cc.cc98:
+-      compile: /usr/bin/g++ -Wall -std=c++98 -o foo foo.cc -lm -I/include
+-      display: C++98
+-    cc.cc98o2:
+-      compile: /usr/bin/g++ -Wall -std=c++98 -o foo foo.cc -lm -O2 -I/include
+-      display: C++98(O2)
+-    cc.cc11:
+-      compile: /usr/bin/g++ -Wall -std=c++11 -o foo foo.cc -lm -I/include
+-      display: C++11
+-    cc.cc11o2:
+-      compile: /usr/bin/g++ -Wall -std=c++11 -o foo foo.cc -lm -O2 -I/include
+-      display: C++11(O2)
+     cc.cc14:
+       display: C++14
+     cc.cc14o2:
+@@ -96,92 +49,3 @@ langs:
+     cc.cc20o2:
+       compile: /usr/bin/g++ -Wall -std=c++20 -o foo foo.cc -lm -O2 -I/include
+       display: C++20(O2)
+-    pas:
+-      compile: /usr/bin/fpc -O2 -o/w/foo foo.pas
+-      highlight: pascal
+-      display: Pascal
+-      version: /usr/bin/fpc -iW
+-    java:
+-      compile: /usr/bin/bash -c "javac -d /w -encoding utf8 ./Main.java && jar cvf Main.jar *.class >/dev/null"
+-      code_file: Main.java
+-      target: Main.jar
+-      execute: /usr/bin/java -cp Main.jar Main
+-      time_limit_rate: 2
+-      highlight: java astyle-java
+-      monaco: java
+-      display: Java
+-      compile_time_limit: 30000
+-      version: /usr/bin/javac -version
+-    kt:
+-      compile: echo "Invalid language selection"
+-      code_file: foo.kt
+-      execute: echo "Invalid language selection"
+-      time_limit_rate: 2
+-      highlight: kotlin
+-      monaco: kotlin
+-      display: Kotlin
+-    kt.jvm:
+-      compile: kotlinc -include-runtime -d foo.jar foo.kt
+-      target: foo.jar
+-      execute: /usr/bin/java -jar foo.jar
+-      display: Kotlin/JVM
+-      compile_time_limit: 30000
+-      version: /usr/bin/kotlinc -version
+-    py:
+-      compile: /usr/bin/python -c "import py_compile; py_compile.compile('/w/foo.py', '/w/foo', doraise=True)"
+-      code_file: foo.py
+-      execute: /usr/bin/python foo
+-      highlight: python
+-      display: Python
+-    py.py2:
+-      display: Python 2
+-      disabled: true
+-    py.py3:
+-      compile: /usr/bin/python3 -c "import py_compile; py_compile.compile('/w/foo.py', '/w/foo', doraise=True)"
+-      execute: /usr/bin/python3 foo
+-      display: Python 3
+-      version: /usr/bin/python3 --version
+-    py.pypy3:
+-      compile: /bin/bash -c "/usr/bin/pypy3 -c \"import py_compile; py_compile.compile('/w/foo.py', '/w/foo', doraise=True)\" && mv foo.py foo"
+-      execute: /bin/bash -c 'mv foo foo.py && /usr/bin/pypy3 -B foo.py'
+-      display: PyPy3
+-      version: /usr/bin/pypy3 --version
+-    php:
+-      execute: /usr/bin/php foo.php
+-      display: PHP
+-      version: /usr/bin/php -v
+-    rs:
+-      compile: /usr/bin/rustc -O -o /w/foo /w/foo.rs
+-      highlight: rust
+-      display: Rust
+-      version: /usr/bin/rustc --version
+-    hs:
+-      compile: /usr/bin/ghc -O -outputdir /tmp -o foo foo.hs
+-      highlight: haskell
+-      display: Haskell
+-      version: /usr/bin/ghc --version
+-    js:
+-      execute: /usr/bin/node /w/foo.js
+-      highlight: javascript
+-      display: NodeJS
+-      version: /usr/bin/node --version
+-    go:
+-      compile: /usr/bin/go build -o foo foo.go
+-      display: Golang
+-      version: /usr/bin/go version
+-    rb:
+-      execute: /usr/bin/ruby foo.rb
+-      highlight: ruby
+-      display: Ruby
+-      version: /usr/bin/ruby --version
+-    cs:
+-      compile: /usr/bin/mcs -optimize+ -out:/w/foo /w/foo.cs
+-      execute: /usr/bin/mono foo
+-      highlight: csharp
+-      monaco: csharp
+-      display: 'C#'
+-      version: /usr/bin/mcs --version
+-    r:
+-      display: R
+-      execute: /bin/sh -c "cat /dev/stdin >stdin && /usr/bin/Rscript --vanilla foo.r"
+-      highlight: r
+diff --git a/packages/hydrooj/src/handler/domain.ts b/packages/hydrooj/src/handler/domain.ts
+index 0c693ccb..62acdefa 100644
+--- a/packages/hydrooj/src/handler/domain.ts
++++ b/packages/hydrooj/src/handler/domain.ts
+@@ -52,17 +52,21 @@ class DomainEditHandler extends ManageHandler {
+         this.response.body = { current: this.domain, settings: DOMAIN_SETTINGS };
+     }
+ 
++    @requireSudo
+     async post(args) {
+         if (args.operation) return;
+         const $set = {};
+-        const booleanKeys = args.booleanKeys || {};
+-        delete args.booleanKeys;
+-        for (const key in booleanKeys) if (!args[key]) $set[key] = false;
++	$set['hidden'] = false;
++        if (args['hidden'] === 'on') {
++            $set['hidden'] = true;
++            delete args.hidden;
++        }
++
+         for (const key in args) {
+             if (DOMAIN_SETTINGS_BY_KEY[key]) $set[key] = args[key];
+         }
+         await domain.edit(args.domainId, $set);
+-        this.response.redirect = this.url('domain_dashboard');
++	this.response.redirect = this.url('domain_dashboard',  { query: { notification: "save successfully!" } });
+     }
+ }
+ 
+@@ -101,67 +105,28 @@ class DomainDashboardHandler extends ManageHandler {
+ 
+ class DomainUserHandler extends ManageHandler {
+     @requireSudo
+-    @param('format', Types.Range(['default', 'raw']), true)
+-    async get({ domainId }, format = 'default') {
++    async get({ domainId }) {
++        const rudocs = {};
+         const [dudocs, roles] = await Promise.all([
+-            domain.collUser.aggregate([
+-                {
+-                    $match: {
+-                        // TODO: add a page to display users who joined but with default role
+-                        role: {
+-                            $nin: ['default', 'guest'],
+-                            $ne: null,
+-                        },
+-                        domainId,
+-                    },
+-                },
+-                {
+-                    $lookup: {
+-                        from: 'user',
+-                        let: { uid: '$uid' },
+-                        pipeline: [
+-                            {
+-                                $match: {
+-                                    $expr: { $eq: ['$_id', '$$uid'] },
+-                                    priv: { $bitsAllSet: PRIV.PRIV_USER_PROFILE },
+-                                },
+-                            },
+-                            {
+-                                $project: {
+-                                    _id: 1,
+-                                    uname: 1,
+-                                    avatar: 1,
+-                                },
+-                            },
+-                        ],
+-                        as: 'user',
+-                    },
+-                },
+-                { $unwind: '$user' },
+-                {
+-                    $project: {
+-                        user: 1,
+-                        role: 1,
+-                        join: 1,
+-                        ...(this.user.hasPerm(PERM.PERM_VIEW_DISPLAYNAME) ? { displayName: 1 } : {}),
+-                    },
+-                },
+-            ]).toArray(),
++            domain.getMultiUserInDomain(domainId, {
++                $and: [
++                    { role: { $nin: ['default', 'guest'] } },
++                    { role: { $ne: null } },
++                ],
++            }).toArray(),
+             domain.getRoles(domainId),
+         ]);
+-        const users = dudocs.map((dudoc) => {
+-            const u = {
+-                ...dudoc,
+-                ...dudoc.user,
+-            };
+-            delete u.user;
+-            return u;
+-        });
+-        const rudocs = {};
+-        for (const role of roles) rudocs[role._id] = users.filter((udoc) => udoc.role === role._id);
+-        this.response.template = format === 'raw' ? 'domain_user_raw.html' : 'domain_user.html';
++        const uids = dudocs.map((dudoc) => dudoc.uid);
++        const udict = await user.getList(domainId, uids);
++        for (const role of roles) rudocs[role._id] = [];
++        for (const dudoc of dudocs) {
++            const udoc = udict[dudoc.uid];
++            if (!(udoc.priv & PRIV.PRIV_USER_PROFILE)) continue;
++            rudocs[udoc.role || 'default'].push(udoc);
++        }
++        this.response.template = 'domain_user.html';
+         this.response.body = {
+-            roles, rudocs, domain: this.domain,
++            roles, rudocs, udict, domain: this.domain,
+         };
+     }
+ 
+@@ -242,6 +207,7 @@ class DomainRoleHandler extends ManageHandler {
+         this.response.body = { roles, domain: this.domain };
+     }
+ 
++    @requireSudo
+     @param('role', Types.Role)
+     async postAdd(domainId: string, role: string) {
+         const roles = await domain.getRoles(this.domain);
+@@ -320,12 +286,14 @@ class DomainUserGroupHandler extends ManageHandler {
+         };
+     }
+ 
++    @requireSudo
+     @param('name', Types.Name)
+     async postDel(domainId: string, name: string) {
+         await user.delGroup(domainId, name);
+         this.back();
+     }
+ 
++    @requireSudo
+     @param('name', Types.Name)
+     @param('uids', Types.NumericArray)
+     async postUpdate(domainId: string, name: string, uids: number[]) {
+diff --git a/packages/hydrooj/src/handler/home.ts b/packages/hydrooj/src/handler/home.ts
+index 4ee54e1e..fd6c851c 100644
+--- a/packages/hydrooj/src/handler/home.ts
++++ b/packages/hydrooj/src/handler/home.ts
+@@ -412,7 +412,7 @@ function set(s: Setting, key: string, value: any) {
+ }
+ 
+ class HomeSettingsHandler extends Handler {
+-    @param('category', Types.Range(['preference', 'account', 'domain']))
++    @param('category', Types.Range(['preference', 'account', 'course']))
+     async get({ }, category: string) {
+         this.response.template = 'home_settings.html';
+         this.response.body = {
+@@ -424,7 +424,7 @@ class HomeSettingsHandler extends Handler {
+             this.response.body.settings = setting.PREFERENCE_SETTINGS;
+         } else if (category === 'account') {
+             this.response.body.settings = setting.ACCOUNT_SETTINGS;
+-        } else if (category === 'domain') {
++        } else if (category === 'course') {
+             this.response.body.settings = setting.DOMAIN_USER_SETTINGS;
+         } else throw new NotFoundError(category);
+     }
+@@ -433,10 +433,10 @@ class HomeSettingsHandler extends Handler {
+         const $set = {};
+         const booleanKeys = args.booleanKeys || {};
+         delete args.booleanKeys;
+-        const setter = args.category === 'domain'
++        const setter = args.category === 'course'
+             ? (s) => domain.setUserInDomain(args.domainId, this.user._id, s)
+             : (s) => user.setById(this.user._id, s);
+-        const settings = args.category === 'domain' ? setting.DOMAIN_USER_SETTINGS_BY_KEY : setting.SETTINGS_BY_KEY;
++        const settings = args.category === 'course' ? setting.DOMAIN_USER_SETTINGS_BY_KEY : setting.SETTINGS_BY_KEY;
+         for (const key in args) {
+             const val = set(settings[key], key, args[key]);
+             if (val !== undefined) $set[key] = val;
+@@ -486,6 +486,46 @@ class UserChangemailWithCodeHandler extends Handler {
+ 
+ class HomeDomainHandler extends Handler {
+     @query('all', Types.Boolean)
++    async get(domainId: string, all: boolean) {
++        let res: DomainDoc[] = [];
++        let dudict: Record<string, any> = {};
++        if (!all) {
++            dudict = await domain.getDictUserByDomainId(this.user._id);
++            const dids = Object.keys(dudict);
++            res = await domain.getMulti({ _id: { $in: dids } }).toArray();
++        } else {
++            this.checkPriv(PRIV.PRIV_VIEW_ALL_DOMAIN);
++            res = await domain.getMulti().toArray();
++            await Promise.all(
++                res.map(async (ddoc) => {
++                    dudict[ddoc._id] = await user.getById(domainId, this.user._id);
++                }),
++            );
++        }
++        const canManage = {};
++        const ddocs = [];
++        for (const ddoc of res) {
++            // eslint-disable-next-line no-await-in-loop
++            const udoc = (await user.getById(ddoc._id, this.user._id))!;
++            const dudoc = dudict[ddoc._id];
++            if (['default', 'guest'].includes(dudoc.role)) {
++                delete dudict[ddoc._id];
++                continue;
++            }
++
++            if (ddoc.hidden && !['root', 'Teacher'].includes(dudoc.role)) {
++                continue;
++            }
++
++            const bManage: Boolean = udoc.hasPerm(PERM.PERM_EDIT_DOMAIN) || udoc.hasPriv(PRIV.PRIV_MANAGE_ALL_DOMAIN);
++
++            ddocs.push(ddoc);
++            canManage[ddoc._id] = bManage;
++        }
++        this.response.template = 'home_domain.html';
++        this.response.body = { ddocs, dudict, canManage };
++    }
++    /*
+     async get({ }, all: boolean) {
+         let ddocs: DomainDoc[] = [];
+         const role: Record<string, string> = {};
+@@ -514,12 +554,13 @@ class HomeDomainHandler extends Handler {
+         this.response.template = 'home_domain.html';
+         this.response.body = { ddocs, canManage, role };
+     }
++    */
+ 
+     @param('id', Types.String)
+     @param('star', Types.Boolean)
+     async postStar({ }, id: string, star = false) {
+         if (star) await user.setById(this.user._id, { pinnedDomains: [...this.user.pinnedDomains, id] });
+-        else user.setById(this.user._id, { pinnedDomains: this.user.pinnedDomains.filter((i) => i !== id) });
++	else user.setById(this.user._id, { pinnedDomains: this.user.pinnedDomains.filter((i) => i !== id) });
+         this.back({ star });
+     }
+ 
+@@ -542,12 +583,13 @@ class HomeDomainCreateHandler extends Handler {
+     @param('name', Types.Title)
+     @param('bulletin', Types.Content)
+     @param('avatar', Types.Content, true)
++    @param('hidden', Types.Boolean)
+     // eslint-disable-next-line ts/no-shadow
+-    async post(_: string, id: string, name: string, bulletin: string, avatar: string) {
++    async post(_: string, id: string, name: string, bulletin: string, avatar: string, hidden = false) {
+         const doc = await domain.get(id);
+         if (doc) throw new DomainAlreadyExistsError(id);
+         avatar ||= this.user.avatar || `gravatar:${this.user.mail}`;
+-        const domainId = await domain.add(id, this.user._id, name, bulletin);
++        const domainId = await domain.add(id, this.user._id, name, bulletin, hidden);
+         // When this domain is deleted but previously added to user's list we shouldn't push it again
+         const push = !this.user.pinnedDomains?.includes(domainId);
+         await Promise.all([
+@@ -623,8 +665,8 @@ export function apply(ctx: Context) {
+     ctx.Route('user_changemail_with_code', '/home/changeMail/:code', UserChangemailWithCodeHandler, PRIV.PRIV_USER_PROFILE);
+     ctx.Route('home_settings', '/home/settings/:category', HomeSettingsHandler, PRIV.PRIV_USER_PROFILE);
+     ctx.Route('home_avatar', '/home/avatar', HomeAvatarHandler, PRIV.PRIV_USER_PROFILE);
+-    ctx.Route('home_domain', '/home/domain', HomeDomainHandler, PRIV.PRIV_USER_PROFILE);
+-    ctx.Route('home_domain_create', '/home/domain/create', HomeDomainCreateHandler, PRIV.PRIV_CREATE_DOMAIN);
++    ctx.Route('home_domain', '/home/course', HomeDomainHandler, PRIV.PRIV_USER_PROFILE);
++    ctx.Route('home_domain_create', '/home/course/create', HomeDomainCreateHandler, PRIV.PRIV_CREATE_DOMAIN);
+     ctx.Route('home_messages', '/home/messages', HomeMessagesHandler, PRIV.PRIV_USER_PROFILE);
+ 
+     async function notifyMessage(uid: number[], mdoc: any, h) {
+diff --git a/packages/hydrooj/src/handler/homework.ts b/packages/hydrooj/src/handler/homework.ts
+index 9e22b7c9..af134ffa 100644
+--- a/packages/hydrooj/src/handler/homework.ts
++++ b/packages/hydrooj/src/handler/homework.ts
+@@ -101,12 +101,20 @@ class HomeworkDetailHandler extends Handler {
+             page,
+             'discussion',
+         );
++	const qrcode = {};
++        if (this.tdoc.maintainer?.length > 0) {
++            const udoc = await user.getById(domainId, this.tdoc.maintainer[0]);
++            qrcode.url = udoc?.qrcodeurl;
++        }
++
+         const uids = ddocs.map((ddoc) => ddoc.owner);
+         uids.push(this.tdoc.owner);
+         const udict = await user.getList(domainId, uids);
+         this.response.template = 'homework_detail.html';
+         this.response.body = {
+-            tdoc: this.tdoc, tsdoc, udict, ddocs, page, dpcount, dcount,
++            tdoc: this.tdoc, tsdoc, udict, ddocs, page, dpcount, dcount, qrcode, files: sortFiles(this.tdoc.files || []), videos: this.tdoc.videos || [], 
++	    urlForFile: (filename: string) =>
++                this.url('homework_file_download', { tid, filename }),
+         };
+         this.response.body.tdoc.content = this.response.body.tdoc.content
+             .replace(/\(file:\/\//g, `(./${this.tdoc.docId}/file/`)
+@@ -155,15 +163,15 @@ class HomeworkEditHandler extends Handler {
+         else this.checkPerm(PERM.PERM_EDIT_HOMEWORK_SELF);
+         const extensionDays = tid
+             ? Math.round(
+-                (tdoc.endAt.getTime() - tdoc.penaltySince.getTime()) / (Time.day / 100),
++                (tdoc.endAt.getTime() - tdoc.penaltySince?.getTime()) / (Time.day / 100),
+             ) / 100
+             : 1;
+         const beginAt = tid
+             ? moment(tdoc.beginAt).tz(this.user.timeZone)
+-            : moment().add(1, 'day').tz(this.user.timeZone).hour(0).minute(0).millisecond(0);
++            : moment().tz(this.user.timeZone).hour(0).minute(0).millisecond(0);
+         const penaltySince = tid
+             ? moment(tdoc.penaltySince).tz(this.user.timeZone)
+-            : beginAt.clone().add(7, 'days').tz(this.user.timeZone).hour(23).minute(59).millisecond(0);
++            : moment("2099-12-31").tz(this.user.timeZone).hour(23).minute(59).millisecond(0);
+         this.response.template = 'homework_edit.html';
+         this.response.body = {
+             tdoc,
+@@ -174,6 +182,7 @@ class HomeworkEditHandler extends Handler {
+             extensionDays,
+             penaltyRules: tid ? yaml.dump(tdoc.penaltyRules) : null,
+             pids: tid ? tdoc.pids.join(',') : '',
++	        ppt: tdoc?.ppt ? tdoc.ppt : '',
+             page_name: tid ? 'homework_edit' : 'homework_create',
+         };
+     }
+@@ -188,6 +197,7 @@ class HomeworkEditHandler extends Handler {
+     @param('title', Types.Title)
+     @param('content', Types.Content)
+     @param('pids', Types.Content)
++    @param('ppt', Types.Content, true)
+     @param('rated', Types.Boolean)
+     @param('maintainer', Types.NumericArray, true)
+     @param('assign', Types.CommaSeperatedArray, true)
+@@ -195,7 +205,7 @@ class HomeworkEditHandler extends Handler {
+     async postUpdate(
+         domainId: string, tid: ObjectId, beginAtDate: string, beginAtTime: string,
+         penaltySinceDate: string, penaltySinceTime: string, extensionDays: number,
+-        penaltyRules: PenaltyRules, title: string, content: string, _pids: string, rated = false,
++        penaltyRules: PenaltyRules, title: string, content: string, _pids: string, ppt: string, rated = false,
+         maintainer: number[] = [], assign: string[] = [], langs: string[] = [],
+     ) {
+         const pids = _pids.replace(/，/g, ',').split(',').map((i) => +i).filter((i) => i);
+@@ -213,7 +223,7 @@ class HomeworkEditHandler extends Handler {
+         await problem.getList(domainId, pids, this.user.hasPerm(PERM.PERM_VIEW_PROBLEM_HIDDEN) || this.user._id, true);
+         if (!tid) {
+             tid = await contest.add(domainId, title, content, this.user._id,
+-                'homework', beginAt.toDate(), endAt.toDate(), pids, rated,
++                'homework', beginAt.toDate(), endAt.toDate(), pids, ppt, rated,
+                 { penaltySince: penaltySince.toDate(), penaltyRules, assign });
+         } else {
+             await contest.edit(domainId, tid, {
+@@ -222,6 +232,7 @@ class HomeworkEditHandler extends Handler {
+                 beginAt: beginAt.toDate(),
+                 endAt: endAt.toDate(),
+                 pids,
++		        ppt,
+                 penaltySince: penaltySince.toDate(),
+                 penaltyRules,
+                 rated,
+@@ -308,16 +319,76 @@ export class HomeworkFilesHandler extends Handler {
+     }
+ }
+ 
++export class HomeworkVideosHandler extends Handler {
++    tdoc: Tdoc;
++
++    @param('tid', Types.ObjectId)
++    async prepare(domainId: string, tid: ObjectId) {
++        this.tdoc = await contest.get(domainId, tid);
++        if (!this.user.own(this.tdoc)) this.checkPerm(PERM.PERM_EDIT_HOMEWORK);
++        else this.checkPerm(PERM.PERM_EDIT_HOMEWORK_SELF);
++    }
++
++    @param('tid', Types.ObjectId)
++    async get(domainId: string, tid: ObjectId) {
++        if (!this.user.own(this.tdoc)) this.checkPerm(PERM.PERM_EDIT_HOMEWORK);
++        this.response.body = {
++            tdoc: this.tdoc,
++            tsdoc: await contest.getStatus(domainId, this.tdoc.docId, this.user._id),
++            udoc: await user.getById(domainId, this.tdoc.owner),
++            files: this.tdoc.videos || [],
++            videotag: {},
++        };
++        this.response.pjax = 'partials/files.html';
++        this.response.template = 'homework_files.html';
++    }
++
++    @param('tid', Types.ObjectId)
++    @post('filename', Types.Filename, true)
++    @post('filenameurl', Types.string, true)
++    async postUploadVideo(domainId: string, tid: ObjectId, filename: string, filenameurl: string) {
++        let fid = 1;
++        if (this.tdoc.videos?.length > 0) {
++            fid = this.tdoc.videos?.length + 1;
++        }
++        const payload = {
++            _id: fid,
++            name: filename,
++            url: filenameurl,
++        };
++        await contest.edit(domainId, tid, {
++            videos: [...(this.tdoc.videos || []), payload],
++        });
++        this.back();
++    }
++
++    @param('tid', Types.ObjectId)
++    @post('files', Types.ArrayOf(Types.Filename))
++    async postDeleteFiles(domainId: string, tid: ObjectId, files: string[]) {
++        await Promise.all([
++            storage.del(
++                files.map((t) => `contest/${domainId}/${tid}/${t}`),
++                this.user._id,
++            ),
++            contest.edit(domainId, tid, {
++                videos: this.tdoc.videos.filter((i) => !files.includes(i.name)),
++            }),
++        ]);
++        this.back();
++    }
++}
++
+ export async function apply(ctx) {
+-    ctx.Route('homework_main', '/homework', HomeworkMainHandler, PERM.PERM_VIEW_HOMEWORK);
+-    ctx.Route('homework_create', '/homework/create', HomeworkEditHandler);
+-    ctx.Route('homework_detail', '/homework/:tid', HomeworkDetailHandler, PERM.PERM_VIEW_HOMEWORK);
+-    ctx.Route('homework_code', '/homework/:tid/code', ContestCodeHandler, PERM.PERM_VIEW_HOMEWORK);
+-    ctx.Route('homework_edit', '/homework/:tid/edit', HomeworkEditHandler);
+-    ctx.Route('homework_files', '/homework/:tid/file', HomeworkFilesHandler, PERM.PERM_VIEW_HOMEWORK);
+-    ctx.Route('homework_file_download', '/homework/:tid/file/:filename', ContestFileDownloadHandler, PERM.PERM_VIEW_HOMEWORK);
++    ctx.Route('homework_main', '/lession', HomeworkMainHandler, PERM.PERM_VIEW_HOMEWORK);
++    ctx.Route('homework_create', '/lession/create', HomeworkEditHandler);
++    ctx.Route('homework_detail', '/lession/:tid', HomeworkDetailHandler, PERM.PERM_VIEW_HOMEWORK);
++    ctx.Route('homework_code', '/lession/:tid/code', ContestCodeHandler, PERM.PERM_VIEW_HOMEWORK);
++    ctx.Route('homework_edit', '/lession/:tid/edit', HomeworkEditHandler);
++    ctx.Route('homework_files', '/lession/:tid/file', HomeworkFilesHandler, PERM.PERM_VIEW_HOMEWORK);
++    ctx.Route('homework_file_download', '/lession/:tid/file/:filename', ContestFileDownloadHandler, PERM.PERM_VIEW_HOMEWORK);
++    ctx.Route('homework_videos', '/lession/:tid/video', HomeworkVideosHandler, PERM.PERM_EDIT_HOMEWORK);
+     await ctx.inject(['scoreboard'], ({ Route }) => {
+-        Route('homework_scoreboard', '/homework/:tid/scoreboard', ContestScoreboardHandler, PERM.PERM_VIEW_HOMEWORK_SCOREBOARD);
+-        Route('homework_scoreboard_view', '/homework/:tid/scoreboard/:view', ContestScoreboardHandler, PERM.PERM_VIEW_HOMEWORK_SCOREBOARD);
++        Route('homework_scoreboard', '/lession/:tid/scoreboard', ContestScoreboardHandler, PERM.PERM_VIEW_HOMEWORK_SCOREBOARD);
++        Route('homework_scoreboard_view', '/lession/:tid/scoreboard/:view', ContestScoreboardHandler, PERM.PERM_VIEW_HOMEWORK_SCOREBOARD);
+     });
+ }
+diff --git a/packages/hydrooj/src/handler/manage.ts b/packages/hydrooj/src/handler/manage.ts
+index 8e6f7909..b220d82a 100644
+--- a/packages/hydrooj/src/handler/manage.ts
++++ b/packages/hydrooj/src/handler/manage.ts
+@@ -283,6 +283,11 @@ class SystemUserImportHandler extends SystemHandler {
+             for (const udoc of udocs) {
+                 try {
+                     const uid = await user.create(udoc.email, udoc.username, udoc.password);
++		    // add to default course 'system
++                    await domain.setUserRole('system', uid, 'Free');
++		    await user.setById(uid, {
++                            pinnedDomains: ['system'],
++                      });
+                     mapping[udoc.email] = uid;
+                     if (udoc.displayName) await domain.setUserInDomain(domainId, uid, { displayName: udoc.displayName });
+                     if (udoc.school) await user.setById(uid, { school: udoc.school });
+@@ -346,6 +351,82 @@ class SystemUserPrivHandler extends SystemHandler {
+     }
+ }
+ 
++class SystemUserListHandler extends SystemHandler {
++    @requireSudo
++    async get() {
++        const defaultPriv = system.get('default.list');
++        const udocs = await user.getMulti({ _id: { $gte: -1000, $ne: 1 } }).limit(1000).sort({ _id: 1 }).toArray();
++        // const banudocs = await user.getMulti({ _id: { $gte: -1000, $ne: 1 }, priv: 0 }).limit(1000).sort({ _id: 1 }).toArray();
++        this.response.body = {
++            udocs: [...udocs],
++            defaultPriv,
++            Priv,
++        };
++        this.response.pjax = 'partials/manage_user_list.html';
++        this.response.template = 'manage_user_list.html';
++    }
++
++    @requireSudo
++    @param('uid', Types.Int)
++    async postSetBan(domainId: string, uid: number) {
++        const udoc = await user.getById(domainId, uid);
++        if (udoc.priv === -1) throw new CannotEditSuperAdminError();
++
++        await user.setPriv(uid, PRIV.PRIV_NONE); // 0: NONE
++        this.ctx.broadcast('user/delcache', true);
++
++        this.response.redirect = this.url('manage_user_list', {
++            query: { notification: '禁用成功' },
++        });
++    }
++
++    @requireSudo
++    @param('uid', Types.Int)
++    async postSetOpen(domainId: string, uid: number) {
++        const udoc = await user.getById(domainId, uid);
++        if (udoc.priv === -1) throw new CannotEditSuperAdminError();
++
++        await user.setPriv(uid, PRIV.PRIV_USER_PROFILE | PRIV.PRIV_SEND_MESSAGE | PRIV.PRIV_REGISTER_USER);
++        this.ctx.broadcast('user/delcache', true);
++        this.response.redirect = this.url('manage_user_list', {
++            query: { notification: '已放行' },
++        });
++    }
++
++    @requireSudo
++    @param('uid', Types.Int)
++    async postSetDel(domainId: string, uid: number) {
++        const udoc = await user.getById(domainId, uid);
++        if (udoc.priv === -1) throw new CannotEditSuperAdminError();
++
++        const tid = await ScheduleModel.add({
++            executeAfter: moment().add(7, 'days').toDate(),
++            type: 'script',
++            id: 'deleteUser',
++            args: { uid },
++        });
++        await user.setById(uid, { del: tid });
++        this.response.redirect = this.url('manage_user_list', {
++            query: { notification: '删除成功' },
++        });
++    }
++
++    @requireSudo
++    @param('uid', Types.Int)
++    async postResetPassword(domainId: string, uid: number) {
++        const udoc = await user.getById(domainId, uid);
++        if (udoc.priv === -1) throw new CannotEditSuperAdminError();
++
++        const password:string = '123456';
++        await user.setPassword(uid, password);
++
++        this.response.redirect = this.url('manage_user_list', {
++            query: { notification: `reset passowrd: ${password}` },
++        });
++    }
++}
++
++
+ export const inject = ['setting', 'check'];
+ export async function apply(ctx) {
+     ctx.Route('manage', '/manage', SystemMainHandler);
+@@ -355,5 +436,6 @@ export async function apply(ctx) {
+     ctx.Route('manage_config', '/manage/config', SystemConfigHandler);
+     ctx.Route('manage_user_import', '/manage/userimport', SystemUserImportHandler);
+     ctx.Route('manage_user_priv', '/manage/userpriv', SystemUserPrivHandler);
++    ctx.Route('manage_user_list', '/manage/userlist', SystemUserListHandler);
+     ctx.Connection('manage_check', '/manage/check-conn', SystemCheckConnHandler);
+ }
+diff --git a/packages/hydrooj/src/handler/problem.ts b/packages/hydrooj/src/handler/problem.ts
+index 13455e0f..cbbb51e2 100644
+--- a/packages/hydrooj/src/handler/problem.ts
++++ b/packages/hydrooj/src/handler/problem.ts
+@@ -1056,7 +1056,7 @@ declare module '@hydrooj/framework' {
+ }
+ 
+ export async function apply(ctx: Context) {
+-    ctx.Route('problem_main', '/p', ProblemMainHandler, PERM.PERM_VIEW_PROBLEM);
++    ctx.Route('problem_main', '/p', ProblemMainHandler, PERM.PERM_VIEW_PROBLEM_NAV);
+     ctx.Route('problem_random', '/problem/random', ProblemRandomHandler, PERM.PERM_VIEW_PROBLEM);
+     ctx.Route('problem_detail', '/p/:pid', ProblemDetailHandler);
+     ctx.Route('problem_submit', '/p/:pid/submit', ProblemSubmitHandler, PERM.PERM_SUBMIT_PROBLEM);
+diff --git a/packages/hydrooj/src/handler/user.ts b/packages/hydrooj/src/handler/user.ts
+index 86ab26d2..a2f4ab97 100644
+--- a/packages/hydrooj/src/handler/user.ts
++++ b/packages/hydrooj/src/handler/user.ts
+@@ -27,7 +27,7 @@ import * as system from '../model/system';
+ import token from '../model/token';
+ import user, { deleteUserCache } from '../model/user';
+ import {
+-    Handler, param, post, Query, Types,
++    Handler, param, post, Query, requireSudo, Types,
+ } from '../service/server';
+ 
+ async function successfulAuth(this: Handler, udoc: User) {
+@@ -322,6 +322,32 @@ class UserRegisterWithCodeHandler extends Handler {
+     }
+ }
+ 
++class UserRegisterWithManualHandler extends Handler {
++    noCheckPermView = true;
++    tdoc: TokenDoc;
++
++    async get() {
++        this.tdoc = {};
++        this.tdoc.mail = `${String.random(12)}@hydro.local`;
++        this.tdoc.password = 'asdfzxcv';
++        this.response.template = 'user_register_with_manual.html';
++        this.response.body = this.tdoc;
++    }
++
++    @requireSudo
++    @param('mail', Types.string)
++    @param('password', Types.Password)
++    @param('uname', Types.Username)
++    async post(
++        domainId: string, mail: string, password: string,
++        uname: string,
++    ) {
++        if (!Types.Username[1](uname)) throw new ValidationError('uname');
++        const uid = await user.create(mail, uname, password, undefined, this.request.ip);
++        this.response.redirect = this.url('user_register_with_manual', { query: { Notification: 'add user successfully' } });
++    }
++}
++
+ class UserLostPassHandler extends Handler {
+     noCheckPermView = true;
+ 
+@@ -607,11 +633,12 @@ export async function apply(ctx: Context) {
+     ctx.Route('user_oauth_callback', '/oauth/:type/callback', OauthCallbackHandler);
+     ctx.Route('user_register', '/register', UserRegisterHandler, PRIV.PRIV_REGISTER_USER);
+     ctx.Route('user_register_with_code', '/register/:code', UserRegisterWithCodeHandler, PRIV.PRIV_REGISTER_USER);
++    ctx.Route('user_register_with_manual', '/reg/manual', UserRegisterWithManualHandler, PRIV.PRIV_EDIT_SYSTEM);
+     ctx.Route('user_logout', '/logout', UserLogoutHandler, PRIV.PRIV_USER_PROFILE);
+     ctx.Route('user_lostpass', '/lostpass', UserLostPassHandler);
+     ctx.Route('user_lostpass_with_code', '/lostpass/:code', UserLostPassWithCodeHandler);
+     ctx.Route('user_delete', '/user/delete', UserDeleteHandler, PRIV.PRIV_USER_PROFILE);
+-    ctx.Route('user_detail', '/user/:uid', UserDetailHandler);
++    ctx.Route('user_detail', '/user/:uid', UserDetailHandler, PRIV.PRIV_USER_PROFILE);
+     if (system.get('server.contestmode')) {
+         ctx.Route('contest_mode', '/contestmode', ContestModeHandler, PRIV.PRIV_EDIT_SYSTEM);
+     }
+diff --git a/packages/hydrooj/src/interface.ts b/packages/hydrooj/src/interface.ts
+index 597109dc..adb5fcd9 100644
+--- a/packages/hydrooj/src/interface.ts
++++ b/packages/hydrooj/src/interface.ts
+@@ -303,6 +303,7 @@ export interface DomainDoc extends Record<string, any> {
+     roles: Dictionary<string>;
+     avatar: string;
+     bulletin: string;
++    hidden?: boolean;
+     _join?: any;
+     host?: string[];
+ }
+diff --git a/packages/hydrooj/src/lib/ui.ts b/packages/hydrooj/src/lib/ui.ts
+index 9d3e61fd..40b94d55 100644
+--- a/packages/hydrooj/src/lib/ui.ts
++++ b/packages/hydrooj/src/lib/ui.ts
+@@ -44,10 +44,10 @@ export function getNodes(name: UIInjectableFields) {
+ }
+ 
+ inject('Nav', 'homepage', { prefix: 'homepage' });
+-inject('Nav', 'problem_main', { prefix: 'problem' }, PERM.PERM_VIEW_PROBLEM);
++inject('Nav', 'problem_main', { prefix: 'problem' }, PERM.PERM_VIEW_PROBLEM_NAV);
++inject('Nav', 'homework_main', { prefix: 'homework' }, PERM.PERM_VIEW_HOMEWORK);
+ inject('Nav', 'training_main', { prefix: 'training' }, PERM.PERM_VIEW_TRAINING);
+ inject('Nav', 'contest_main', { prefix: 'contest' }, PERM.PERM_VIEW_CONTEST);
+-inject('Nav', 'homework_main', { prefix: 'homework' }, PERM.PERM_VIEW_HOMEWORK);
+ inject('Nav', 'discussion_main', { prefix: 'discussion' }, PERM.PERM_VIEW_DISCUSSION);
+ inject('Nav', 'record_main', {
+     prefix: 'record',
+@@ -64,6 +64,7 @@ inject('ControlPanel', 'manage_dashboard');
+ inject('ControlPanel', 'manage_script');
+ inject('ControlPanel', 'manage_user_import');
+ inject('ControlPanel', 'manage_user_priv');
++inject('ControlPanel', 'manage_user_list');
+ inject('ControlPanel', 'manage_setting');
+ inject('ControlPanel', 'manage_config');
+ inject('DomainManage', 'domain_dashboard', { family: 'Properties', icon: 'info' });
+diff --git a/packages/hydrooj/src/model/builtin.ts b/packages/hydrooj/src/model/builtin.ts
+index f6028a51..23b8f38c 100644
+--- a/packages/hydrooj/src/model/builtin.ts
++++ b/packages/hydrooj/src/model/builtin.ts
+@@ -23,6 +23,7 @@ export const PERM = {
+     PERM_VIEW_PROBLEM_HIDDEN: 1n << 8n,
+     PERM_SUBMIT_PROBLEM: 1n << 9n,
+     PERM_READ_PROBLEM_DATA: 1n << 10n,
++     PERM_VIEW_PROBLEM_NAV: 1n << 71n,
+ 
+     // Record
+     PERM_VIEW_RECORD: 1n << 70n,
+@@ -98,6 +99,10 @@ export const PERM = {
+     PERM_DEFAULT: 0n,
+     PERM_ADMIN: -1n,
+ 
++    PERM_TEACHER: 0n,
++    PERM_VIP: 0n,
++    PERM_FREE: 0n,
++
+     PERM_NEVER: 1n << 60n,
+ };
+ 
+@@ -112,6 +117,7 @@ export const PERMS = [
+     Permission('perm_problem', PERM.PERM_EDIT_PROBLEM, 'Edit problems'),
+     Permission('perm_problem', PERM.PERM_EDIT_PROBLEM_SELF, 'Edit own problems'),
+     Permission('perm_problem', PERM.PERM_VIEW_PROBLEM, 'View problems'),
++    Permission('perm_problem', PERM.PERM_VIEW_PROBLEM_NAV, 'View problems nav'),
+     Permission('perm_problem', PERM.PERM_VIEW_PROBLEM_HIDDEN, 'View hidden problems'),
+     Permission('perm_problem', PERM.PERM_SUBMIT_PROBLEM, 'Submit problem'),
+     Permission('perm_problem', PERM.PERM_READ_PROBLEM_DATA, 'Read data of problem'),
+@@ -179,21 +185,10 @@ for (const p of PERMS) {
+ 
+ PERM.PERM_BASIC = PERM.PERM_VIEW
+     | PERM.PERM_VIEW_PROBLEM
+-    | PERM.PERM_VIEW_PROBLEM_SOLUTION
+-    | PERM.PERM_VIEW_PROBLEM_SOLUTION_ACCEPT
+-    | PERM.PERM_VIEW_DISCUSSION
+-    | PERM.PERM_VIEW_CONTEST
+-    | PERM.PERM_VIEW_CONTEST_SCOREBOARD
+-    | PERM.PERM_VIEW_HOMEWORK
+-    | PERM.PERM_VIEW_HOMEWORK_SCOREBOARD
+-    | PERM.PERM_VIEW_TRAINING
+-    | PERM.PERM_VIEW_RANKING
+-    | PERM.PERM_VIEW_RECORD;
+-
+-PERM.PERM_DEFAULT = PERM.PERM_VIEW
++    | PERM.PERM_VIEW_HOMEWORK;
++
++PERM.PERM_DEFAULT = PERM.PERM_BASIC
+     | PERM.PERM_VIEW_DISPLAYNAME
+-    | PERM.PERM_VIEW_PROBLEM
+-    | PERM.PERM_EDIT_PROBLEM_SELF
+     | PERM.PERM_SUBMIT_PROBLEM
+     | PERM.PERM_VIEW_PROBLEM_SOLUTION
+     | PERM.PERM_VIEW_PROBLEM_SOLUTION_ACCEPT
+@@ -212,31 +207,40 @@ PERM.PERM_DEFAULT = PERM.PERM_VIEW
+     | PERM.PERM_EDIT_DISCUSSION_REPLY_SELF
+     | PERM.PERM_DELETE_DISCUSSION_REPLY_SELF
+     | PERM.PERM_DELETE_DISCUSSION_REPLY_SELF_DISCUSSION
+-    | PERM.PERM_VIEW_CONTEST
+-    | PERM.PERM_VIEW_CONTEST_SCOREBOARD
+-    | PERM.PERM_ATTEND_CONTEST
+-    | PERM.PERM_EDIT_CONTEST_SELF
+-    | PERM.PERM_VIEW_HOMEWORK
+-    | PERM.PERM_VIEW_HOMEWORK_SCOREBOARD
+     | PERM.PERM_ATTEND_HOMEWORK
+     | PERM.PERM_EDIT_HOMEWORK_SELF
+-    | PERM.PERM_VIEW_TRAINING
+-    | PERM.PERM_CREATE_TRAINING
+-    | PERM.PERM_EDIT_TRAINING_SELF
+-    | PERM.PERM_SUBMIT_PROBLEM
+-    | PERM.PERM_CREATE_PROBLEM_SOLUTION
+-    | PERM.PERM_VOTE_PROBLEM_SOLUTION
+-    | PERM.PERM_REPLY_PROBLEM_SOLUTION
+-    | PERM.PERM_CREATE_DISCUSSION
+-    | PERM.PERM_REPLY_DISCUSSION
+-    | PERM.PERM_ATTEND_CONTEST
+-    | PERM.PERM_CREATE_TRAINING
+-    | PERM.PERM_ATTEND_HOMEWORK
+-    | PERM.PERM_VIEW_RANKING
+-    | PERM.PERM_VIEW_RECORD;
++    | PERM.PERM_VIEW_CONTEST
++    | PERM.PERM_REJUDGE_PROBLEM;
++
+ 
+ PERM.PERM_ADMIN = PERM.PERM_ALL;
+ 
++PERM.PERM_FREE = PERM.PERM_DEFAULT;
++
++PERM.PERM_VIP = PERM.PERM_DEFAULT
++    | PERM.PERM_ATTEND_CONTEST
++    | PERM.PERM_VIEW_CONTEST_SCOREBOARD;
++
++PERM.PERM_TEACHER = PERM.PERM_VIP
++    | PERM.PERM_VIEW_RECORD
++    | PERM.PERM_READ_RECORD_CODE_ACCEPT
++    | PERM.PERM_REJUDGE_PROBLEM
++    | PERM.PERM_REJUDGE
++    | PERM.PERM_EDIT_PROBLEM_SOLUTION
++    | PERM.PERM_DELETE_PROBLEM_SOLUTION
++    | PERM.PERM_EDIT_PROBLEM_SOLUTION_SELF
++    | PERM.PERM_DELETE_PROBLEM_SOLUTION_REPLY
++    | PERM.PERM_CREATE_CONTEST
++    | PERM.PERM_EDIT_CONTEST_SELF
++    | PERM.PERM_VIEW_HIDDEN_CONTEST
++    | PERM.PERM_VIEW_CONTEST_HIDDEN_SCOREBOARD
++    | PERM.PERM_CREATE_HOMEWORK
++    | PERM.PERM_CREATE_PROBLEM
++    | PERM.PERM_EDIT_PROBLEM
++    | PERM.PERM_EDIT_PROBLEM_SELF
++    | PERM.PERM_VIEW_PROBLEM_HIDDEN
++    | PERM.PERM_VIEW_PROBLEM_NAV;
++
+ export const PRIV = {
+     PRIV_NONE: 0,
+     PRIV_MOD_BADGE: 1 << 25,
+@@ -276,6 +280,9 @@ export const LEVELS = [100, 90, 70, 55, 40, 30, 20, 10, 5, 2, 1];
+ export const BUILTIN_ROLES = {
+     guest: PERM.PERM_BASIC,
+     default: PERM.PERM_DEFAULT,
++    Free: PERM.PERM_FREE,
++    VIP: PERM.PERM_VIP,
++    Teacher: PERM.PERM_TEACHER,
+     root: PERM.PERM_ALL,
+ };
+ 
+diff --git a/packages/hydrooj/src/model/contest.ts b/packages/hydrooj/src/model/contest.ts
+index 3d1a8bc3..1dba9c38 100644
+--- a/packages/hydrooj/src/model/contest.ts
++++ b/packages/hydrooj/src/model/contest.ts
+@@ -75,7 +75,7 @@ export function isLocked(tdoc: Tdoc, time = new Date()) {
+ 
+ export function isExtended(tdoc: Tdoc) {
+     const now = new Date().getTime();
+-    return tdoc.penaltySince.getTime() <= now && now < tdoc.endAt.getTime();
++    return tdoc.penaltySince?.getTime() <= now && now < tdoc.endAt.getTime();
+ }
+ 
+ export function buildContestRule<T>(def: Optional<ContestRule<T>, 'applyProjection'>): ContestRule<T>;
+@@ -803,18 +803,18 @@ function _getStatusJournal(tsdoc) {
+ 
+ export async function add(
+     domainId: string, title: string, content: string, owner: number,
+-    rule: string, beginAt = new Date(), endAt = new Date(), pids: number[] = [],
++    rule: string, beginAt = new Date(), endAt = new Date(), pids: number[] = [], ppt: string,
+     rated = false, data: Partial<Tdoc> = {},
+ ) {
+     if (!RULES[rule]) throw new ValidationError('rule');
+     if (beginAt >= endAt) throw new ValidationError('beginAt', 'endAt');
+     Object.assign(data, {
+-        content, owner, title, rule, beginAt, endAt, pids, attend: 0,
++        content, owner, title, rule, beginAt, endAt, pids, ppt, attend: 0,
+     });
+     RULES[rule].check(data);
+     await bus.parallel('contest/before-add', data);
+     const docId = await document.add(domainId, content, owner, document.TYPE_CONTEST, null, null, null, {
+-        assign: [], ...data, title, rule, beginAt, endAt, pids, attend: 0, rated,
++        assign: [], ...data, title, rule, beginAt, endAt, pids, ppt, attend: 0, rated,
+     });
+     await bus.parallel('contest/add', data, docId);
+     return docId;
+diff --git a/packages/hydrooj/src/model/domain.ts b/packages/hydrooj/src/model/domain.ts
+index 12ee7f4b..9a06140f 100644
+--- a/packages/hydrooj/src/model/domain.ts
++++ b/packages/hydrooj/src/model/domain.ts
+@@ -47,7 +47,7 @@ class DomainModel {
+     };
+ 
+     @ArgMethod
+-    static async add(domainId: string, owner: number, name: string, bulletin: string) {
++    static async add(domainId: string, owner: number, name: string, bulletin: string, hidden: boolean) {
+         const ddoc: DomainDoc = {
+             _id: domainId,
+             lower: domainId.toLowerCase(),
+@@ -56,6 +56,7 @@ class DomainModel {
+             bulletin,
+             roles: {},
+             avatar: '',
++	    hidden: hidden,
+         };
+         await bus.parallel('domain/create', ddoc);
+         await coll.insertOne(ddoc);
+diff --git a/packages/hydrooj/src/model/setting.ts b/packages/hydrooj/src/model/setting.ts
+index 73053365..79288a72 100644
+--- a/packages/hydrooj/src/model/setting.ts
++++ b/packages/hydrooj/src/model/setting.ts
+@@ -254,6 +254,7 @@ AccountSetting(
+     Setting('setting_info', 'avatar', '', 'text', 'Avatar',
+         'Allow using gravatar:email qq:id github:name url:link format.'),
+     Setting('setting_info', 'qq', null, 'text', 'QQ'),
++    Setting('setting_info', 'qrcodeurl', null, 'text', 'QrcodeUrl'),
+     Setting('setting_info', 'gender', builtin.USER_GENDER_OTHER, builtin.USER_GENDER_RANGE, 'Gender'),
+     Setting('setting_info', 'bio', null, 'markdown', 'Bio'),
+     Setting('setting_info', 'school', '', 'text', 'School'),
+@@ -269,6 +270,7 @@ AccountSetting(
+ );
+ 
+ DomainSetting(
++    Setting('setting_domain', 'hidden', false, 'boolean', 'Hidden'),
+     Setting('setting_domain', 'name', 'New domain', 'text', 'name'),
+     Setting('setting_domain', 'avatar', '', 'text', 'avatar', 'Will be used as the domain icon.'),
+     Setting('setting_domain', 'share', '', 'text', 'Share problem with domain (* for any)'),
+@@ -358,7 +360,7 @@ SystemSetting(
+     Setting('setting_basic', 'hydrooj.homepage', settingFile.homepage.default, 'yaml', 'hydrooj.homepage', 'Homepage config'),
+     Setting('setting_basic', 'hydrooj.langs', settingFile.langs.default, 'yaml', 'hydrooj.langs', 'Language config'),
+     Setting('setting_session', 'session.keys', [randomstring(32)], 'text', 'session.keys', 'session.keys', FLAG_HIDDEN),
+-    Setting('setting_session', 'session.domain', '', 'text', 'session.domain', 'session.domain', FLAG_HIDDEN),
++    Setting('setting_session', 'session.domain', '', 'text', 'session.domain', 'session.domain'),
+     Setting('setting_session', 'session.saved_expire_seconds', 3600 * 24 * 30,
+         'number', 'session.saved_expire_seconds', 'Saved session expire seconds'),
+     Setting('setting_session', 'session.unsaved_expire_seconds', 3600 * 3,
+diff --git a/packages/ui-default/common/variables.inc.styl b/packages/ui-default/common/variables.inc.styl
+index 8adb3ef3..4205d17b 100644
+--- a/packages/ui-default/common/variables.inc.styl
++++ b/packages/ui-default/common/variables.inc.styl
+@@ -8,10 +8,10 @@ $code-font-family = var(--code-font-family)
+ 
+ // primary palette
+ $default-color = #ddd
+-$primary-color = #5f9fd6
+-$secondary-color = #ed5f82
++$primary-color = #0b99ec
++$secondary-color = #1cc568
+ $highlight-color = #df6589
+-$code-color = #c92a2a
++$code-color = #2ab6c9
+ $text-1-color = #555
+ $text-2-color = lighten($text-1-color, 15%)
+ $text-3-color = lighten($text-1-color, 30%)
+@@ -28,9 +28,9 @@ $immersive-text-color = #ffffff
+ $immersive-header-color = #ffffff
+ 
+ $success-color = #25ad40
+-$fail-color = #fb5555
+-$progress-color = #f39800
+-$invalid-color = #9fa0a0
++$fail-color = #d31818
++$progress-color = #67f74a
++$invalid-color = #e62828
+ 
+ // sizes
+ $font-size = 16px             // main content
+@@ -124,8 +124,8 @@ $table-padding-h = 10px
+ $table-lh = 26px
+ 
+ $toolbar-bg = #f2f6f7
+-$toolbar-fore = #8395a1
+-$toolbar-fore-hover = #5a6b75
++$toolbar-fore = #7a92a1
++$toolbar-fore-hover = #556a75
+ $toolbar-bg-hover = #e3e7e8
+ $toolbar-fore-selected = #FFF
+ $toolbar-bg-selected = $secondary-color
+@@ -253,7 +253,7 @@ $training-section-status-icon = {
+ // #6EA2C7, #48AAB7, #6BB67A, #F5C735, #DC7D86
+ $contest-color = {
+   'acm': #6BB67A,
+-  'oi': #F5C735,
++  'oi': #2cce54,
+   'ioi': #2E9AFE,
+   'ledo': #8076A3,
+   'homework': #FFCDCD,
+diff --git a/packages/ui-default/components/autocomplete/index.tsx b/packages/ui-default/components/autocomplete/index.tsx
+index 4f3a0513..9665211c 100644
+--- a/packages/ui-default/components/autocomplete/index.tsx
++++ b/packages/ui-default/components/autocomplete/index.tsx
+@@ -73,7 +73,7 @@ export default class AutoComplete<Options extends Record<string, any> = object,
+           setValue(v);
+           this.onChange(v);
+         }}
+-        selectedKeys={(Array.isArray(value) ? value : value.split(',')).map((i) => i.trim()).filter((i) => i)}
++        //selectedKeys={(Array.isArray(value) ? value : value.split(',')).map((i) => i.trim()).filter((i) => i)}
+         height="34px"
+         {...this.options.props}
+       />;
+diff --git a/packages/ui-default/components/navigation/navigation.page.styl b/packages/ui-default/components/navigation/navigation.page.styl
+index afc7f277..9e17ce30 100644
+--- a/packages/ui-default/components/navigation/navigation.page.styl
++++ b/packages/ui-default/components/navigation/navigation.page.styl
+@@ -14,7 +14,7 @@
+   background: rgba(#FFF, 0.98)
+ 
+   .nav__item
+-    color: $text-1-color
++    color: #454910
+     &.nav--active
+       border-color: $nav-item-active-color
+       &:before
+@@ -73,10 +73,10 @@
+   line-height: rem($nav-item-height - 6)
+   padding: rem(0 20px 3px 20px)
+   border-top: 3px solid transparent
+-  color: #000
+   transition: border-color .2s, background .2s, color .2s
+   transition-timing-function: ease-out-cubic
+   position: relative
++  color: #454910
+ 
+   &:before
+     content: ''
+@@ -122,7 +122,7 @@
+   &:hover
+     text-decoration: none
+     background: #FFF
+-    color: #666
++    color: #ece2e2
+ 
+ .nav__list-item
+   float: left
+@@ -154,7 +154,7 @@
+     display: none
+ 
+   .nav.slideout-menu
+-    background: #1D1F20
++    background: #a3a4a5
+ 
+   .nav__list
+     float: none
+@@ -172,6 +172,7 @@
+     margin: 0
+     border-radius: 0
+     background: none
++    color: #454910
+ 
+     .icon
+       line-height: inherit
+@@ -181,12 +182,12 @@
+ 
+     &:visited, &:active
+       background: none
+-      color: #FFF
++      color: #ffffff
+ 
+     &:hover
+       border-color: $nav-item-hover-color
+       background: rgba(#FFF, 0.10)
+-      color: #FFF
++      color: #a7a2a2
+ 
+   .nav__item
+     &:before
