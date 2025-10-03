@@ -1,0 +1,13 @@
+
+wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
+
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+
+sudo apt update
+sudo apt install mongodb-mongosh
+
+
+连接mongod 数据库
+
+mongosh mongodb://hydro:660e7c89992f416c47b1ec6d9dc38496077940f252b6fd34bf02e050c0fa0c8c@127.0.0.1:27017/hydro
+
