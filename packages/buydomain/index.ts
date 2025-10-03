@@ -114,6 +114,7 @@ class DomainExitHandler extends Handler {
             UserModel.setById(this.user._id, {
                 pinnedDomains: this.user.pinnedDomains.filter((i) => i !== did),
             }),
+    	    DomainModel.setUserInDomain(did, this.user._id, { join: false }),
             OplogModel.log(this, 'domain.exit', {}),
         ]);
         this.response.redirect = this.url('home_domain', {
@@ -128,20 +129,23 @@ class BuydomainPayHandler extends Handler {}
 
 class BuydomainTryHandler extends Handler {}
 
-async function post(domainId: string, code: string) {
-    if (this.joinSettings.method === DomainModel.JOIN_METHOD_CODE) {
+async function post({ domainId }, target: string = domainId, code: string) {
+    if (this.joinSettings?.method === DomainModel.JOIN_METHOD_CODE) {
         if (this.joinSettings.code !== code) {
             throw new InvalidJoinInvitationCodeError(this.domain._id);
         }
     }
+    if (this.joinSettings?.group) {
+        const groups = await UserModel.listGroup(target);
+        const entry = groups.find((i) => i.name === this.joinSettings.group);
+        if (!entry) throw new ValidationError('group');
+        await UserModel.updateGroup(target, entry.name, entry.uids.concat(this.user._id));
+    }
+
     await Promise.all([
-        DomainModel.setUserRole(
-            this.domain._id,
-            this.user._id,
-            this.joinSettings.role,
-        ),
-        UserModel.setById(this.user._id, {
-            pinnedDomains: [...this.user.pinnedDomains, this.domain._id],
+        DomainModel.setUserInDomain(target, this.user._id, {
+            join: true,
+            ...(this.joinSettings ? { role: this.joinSettings.role } : {}),
         }),
         OplogModel.log(this, 'domain.join', {}),
     ]);
@@ -163,7 +167,7 @@ export async function apply(ctx: Context) {
 
     ctx.Route(
         'domain_exit',
-        '/course/exit/:did',
+        '/domain/exit/:did',
         DomainExitHandler,
         PRIV.PRIV_USER_PROFILE,
     );
