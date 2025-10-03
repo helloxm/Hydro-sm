@@ -1,0 +1,12 @@
+
+4.19 升级到 5.0
+nix-channel --update && nix-env -iA nixpkgs.nodejs
+nix-env -iA nixpkgs.gawk
+
+yarn global upgrade-interactive --latest
+
+cd Hydro 主干
+git apply ../Hydro-sm/addon/20250923_all.diff
+./20250923_all.sh  此脚本在Hydro-sm/addon/ 下面
+
+注意，现在发现ui-default的修改没有生效
