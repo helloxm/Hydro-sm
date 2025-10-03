@@ -1,6 +1,11 @@
 - Hydro-sm弃用，回归到Hydro主干，用patch的方式与主干合并, 2025.9.26
 - 下面是升级指令细节
 
+- 升级详细操作 https://hydro.js.org/docs/Hydro/FAQ/upgrade
+yarn global upgrade-interactive --latest
+pm2 restart hydrooj
+pm2 logs hydrooj --lines 100  #没有看到报错并看到了 Server started 则一切正常
+
 文档
 https://hydro.js.org/docs/Hydro/dev
 
