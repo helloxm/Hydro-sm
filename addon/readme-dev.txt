@@ -15,6 +15,7 @@ yarn hydrooj addon add /root/addon
 yarn debug --port=2333 --watch
 
 第二个Terminal 
+yarn
 yarn build:ui:dev
 
 打开浏览器访问
