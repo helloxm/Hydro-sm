@@ -1,0 +1,1063 @@
+diff --git a/packages/hydrooj/src/handler/problem.ts b/packages/hydrooj/src/handler/problem.ts
+index f2fcfdbf..22c90349 100644
+--- a/packages/hydrooj/src/handler/problem.ts
++++ b/packages/hydrooj/src/handler/problem.ts
+@@ -352,6 +352,7 @@ export class ProblemDetailHandler extends ContestDetailBaseHandler {
+             discussion.count(domainId, { parentId: this.pdoc.docId }),
+         ]);
+         this.response.body = {
++	    callfrom: 'myself',
+             pdoc: this.pdoc,
+             udoc: this.udoc,
+             psdoc: tid ? null : this.psdoc,
+@@ -458,6 +459,24 @@ export class ProblemDetailHandler extends ContestDetailBaseHandler {
+         this.back({ star });
+     }
+ }
++export class ProblemSlidevHandler extends ProblemDetailHandler {
++    @param('tid', Types.ObjectId, true)
++    async prepare(domainId: string, tid?: ObjectId) {
++        if (tid && !contest.isOngoing(this.tdoc, this.tsdoc)) throw new ContestNotLiveError(this.tdoc.docId);
++        if (typeof this.pdoc.config === 'string') throw new ProblemConfigError();
++        if (this.pdoc.config.langs && !this.pdoc.config.langs.length) throw new ProblemConfigError();
++    }
++
++    async get() {
++        this.response.template = 'problem_detail.html';
++        const langRange = (typeof this.pdoc.config === 'object' && this.pdoc.config.langs)
++            ? Object.fromEntries(this.pdoc.config.langs.map((i) => [i, setting.langs[i]?.display || i]))
++            : setting.SETTINGS_BY_KEY.codeLang.range;
++        this.response.body.callfrom = 'slidev';
++        this.response.body.page_name = 'problem_detail';
++    }
++}
++
+ 
+ export class ProblemSubmitHandler extends ProblemDetailHandler {
+     @param('tid', Types.ObjectId, true)
+@@ -1064,6 +1083,7 @@ export async function apply(ctx: Context) {
+     ctx.Route('problem_main', '/p', ProblemMainHandler, PERM.PERM_VIEW_PROBLEM);
+     ctx.Route('problem_random', '/problem/random', ProblemRandomHandler, PERM.PERM_VIEW_PROBLEM);
+     ctx.Route('problem_detail', '/p/:pid', ProblemDetailHandler);
++    ctx.Route('problem_detail', '/p/:pid/slidev', ProblemSlidevHandler);
+     ctx.Route('problem_submit', '/p/:pid/submit', ProblemSubmitHandler, PERM.PERM_SUBMIT_PROBLEM);
+     ctx.Route('problem_hack', '/p/:pid/hack/:rid', ProblemHackHandler, PERM.PERM_SUBMIT_PROBLEM);
+     ctx.Route('problem_edit', '/p/:pid/edit', ProblemEditHandler);
+diff --git a/packages/ui-default/components/scratchpad/Panel.page.styl b/packages/ui-default/components/scratchpad/Panel.page.styl
+index 4cb1ba30..0ad1d87a 100644
+--- a/packages/ui-default/components/scratchpad/Panel.page.styl
++++ b/packages/ui-default/components/scratchpad/Panel.page.styl
+@@ -3,9 +3,13 @@
+ .scratchpad__panel-title
+   background: $primary-color
+   line-height: rem($panel-header-height)
++  height: rem($panel-header-height)  // ✅ 新增：高度兜底，防止塌陷
+   padding: rem(0 5px)
+   font-size: rem($font-size-small)
+   color: #FFF
++  display: flex          // 开启弹性布局 ✅ 核心
++  align-items: center    // 文字和按钮垂直居中 ✅ 核心（和line-height配合更完美）
++  justify-content: space-between // 标题居左，按钮居右 ✅ 核心需求
+ 
+ .splitpane-fill
+   display: flex
+diff --git a/packages/ui-default/components/scratchpad/PanelComponent.jsx b/packages/ui-default/components/scratchpad/PanelComponent.jsx
+index 7323942d..ff66a706 100644
+--- a/packages/ui-default/components/scratchpad/PanelComponent.jsx
++++ b/packages/ui-default/components/scratchpad/PanelComponent.jsx
+@@ -1,18 +1,17 @@
+-import classNames from 'classnames';
+-import PropTypes from 'prop-types';
+-import React from 'react';
++import classNames from "classnames";
++import PropTypes from "prop-types";
++import React from "react";
+ 
+ export default function PanelComponent(props) {
+-  const {
+-    title,
+-    className,
+-    children,
+-    ...rest
+-  } = props;
+-  const cn = classNames(className, 'flex-col');
++  const { title, className, children, rightbuttons, ...rest } = props;
++  const cn = classNames(className, "flex-col");
+   return (
+     <div {...rest} className={`${cn} splitpane-fill`}>
+-      <div className="scratchpad__panel-title">{title}</div>
++      {/* 标题容器 - 增加flex布局实现左右分布 + 垂直居中，和你的样式无缝兼容 */}
++      <div className="scratchpad__panel-title">
++        {title}
++        {rightbuttons}
++      </div>
+       <div className="flex-col flex-fill">{children}</div>
+     </div>
+   );
+@@ -22,4 +21,10 @@ PanelComponent.propTypes = {
+   title: PropTypes.node,
+   className: PropTypes.string,
+   children: PropTypes.node,
++  rightbuttons: PropTypes.node,
++};
++
++// 不传titleExtra时不会报错/占位
++PanelComponent.defaultProps = {
++  rightbuttons: null,
+ };
+diff --git a/packages/ui-default/components/scratchpad/ScratchpadEditorContainer.tsx b/packages/ui-default/components/scratchpad/ScratchpadEditorContainer.tsx
+index e6e6e856..72f0ae12 100644
+--- a/packages/ui-default/components/scratchpad/ScratchpadEditorContainer.tsx
++++ b/packages/ui-default/components/scratchpad/ScratchpadEditorContainer.tsx
+@@ -1,138 +1,297 @@
+-import type * as monaco from 'monaco-editor';
+-import React from 'react';
+-import { connect } from 'react-redux';
+-import { load } from 'vj/components/monaco/loader';
+-import { ctx } from 'vj/context';
++import type * as monaco from "monaco-editor";
++import React from "react";
++import { connect } from "react-redux";
++import { load } from "vj/components/monaco/loader";
++import { ctx } from "vj/context";
+ 
+ interface ScratchpadOptions {
+   value?: string;
+   language?: string;
+-  handleUpdateCode?: (str: string, event: monaco.editor.IModelContentChangedEvent) => void;
++  handleUpdateCode?: (
++    str: string,
++    event: monaco.editor.IModelContentChangedEvent
++  ) => void;
+   settings?: any;
+   pendingCommand?: string;
+   commandDone?: () => void;
+ }
+ 
+ // eslint-disable-next-line react-refresh/only-export-components
+-export default connect((state: any) => ({
+-  value: state.editor.code,
+-  language: window.LANGS[state.editor.lang]?.monaco,
+-  settings: state.ui.settings.config,
+-  pendingCommand: state.ui.pendingCommand,
+-}), (dispatch) => ({
+-  handleUpdateCode: (code: string) => {
+-    dispatch({
+-      type: 'SCRATCHPAD_EDITOR_UPDATE_CODE',
+-      payload: code,
+-    });
+-  },
+-  commandDone: () => {
+-    dispatch({
+-      type: 'SCRATCHPAD_TRIGGER_EDITOR_COMMAND',
+-      payload: { command: '' },
+-    });
+-  },
+-}))(class MonacoEditor extends React.PureComponent<ScratchpadOptions> {
+-  disposable: monaco.IDisposable[] = [];
+-  __prevent_trigger_change_event = false;
+-  model: monaco.editor.ITextModel;
+-  editor: monaco.editor.IStandaloneCodeEditor;
+-  containerElement: HTMLElement;
++export default connect(
++  (state: any) => ({
++    value: state.editor.code,
++    language: window.LANGS[state.editor.lang]?.monaco,
++    settings: state.ui.settings.config,
++    pendingCommand: state.ui.pendingCommand,
++  }),
++  (dispatch) => ({
++    handleUpdateCode: (code: string) => {
++      dispatch({
++        type: "SCRATCHPAD_EDITOR_UPDATE_CODE",
++        payload: code,
++      });
++    },
++    commandDone: () => {
++      dispatch({
++        type: "SCRATCHPAD_TRIGGER_EDITOR_COMMAND",
++        payload: { command: "" },
++      });
++    },
++  })
++)(
++  class MonacoEditor extends React.PureComponent<ScratchpadOptions> {
++    disposable: monaco.IDisposable[] = [];
++    __prevent_trigger_change_event = false;
++    model: monaco.editor.ITextModel;
++    editor: monaco.editor.IStandaloneCodeEditor;
++    containerElement: HTMLElement;
+ 
+-  async componentDidMount() {
+-    const value = this.props.value || '';
+-    const { language } = this.props;
+-    const { monaco, registerAction, customOptions } = await load([language]);
+-    const uri = monaco.Uri.parse(`hydro:${UiContext.pdoc.pid || UiContext.pdoc.docId}.${language}`);
+-    this.model = monaco.editor.getModel(uri) || monaco.editor.createModel(value, language, uri);
+-    if (this.containerElement) {
+-      const config: monaco.editor.IStandaloneEditorConstructionOptions = {
+-        theme: 'vs-light',
+-        fontFamily: UserContext.codeFontFamily,
+-        ...customOptions,
+-        lineNumbers: 'on',
+-        glyphMargin: true,
+-        lightbulb: { enabled: monaco.editor.ShowLightbulbIconMode.On },
+-        model: this.model,
+-        fontLigatures: '',
+-      };
+-      this.editor = monaco.editor.create(this.containerElement, config);
+-      registerAction(this.editor, this.model);
+-      this.disposable.push(
+-        this.editor.onDidChangeModelContent((event) => {
+-          if (!this.__prevent_trigger_change_event) {
+-            this.props.handleUpdateCode?.(this.editor.getValue({ lineEnding: '\n', preserveBOM: false }), event);
+-          }
+-        }),
+-      );
+-      (window as any).editor = this.editor;
+-      (window as any).monaco = monaco;
+-      ctx.scratchpad.init(this.editor, monaco);
+-    }
+-  }
++    // 组件内部新增独立方法
++    registerCustomCompletion = (monaco, language) => {
++      // ✅ 1. 你的自定义C++关键字列表 保持不变，按需增减即可
++      const CUSTOM_KEYWORDS = [
++        "ans",
++        "res",
++        "mod",
++        "inf",
++        "solve",
++        "main",
++        "bool",
++        "char",
++        "int",
++        "short",
++        "unsigned",
++        "long long",
++        "float",
++        "double",
++      ];
++      // ✅ 注册补全提供者
++      const completionDisposable =
++        monaco.languages.registerCompletionItemProvider(language, {
++          // ✅ 修复：完善触发字符，输入任意字母/下划线都会自动弹出补全框，完美适配编程场景
++          triggerCharacters: [
++            "_",
++            "a",
++            "b",
++            "c",
++            "d",
++            "e",
++            "f",
++            "g",
++            "h",
++            "i",
++            "j",
++            "k",
++            "l",
++            "m",
++            "n",
++            "o",
++            "p",
++            "q",
++            "r",
++            "s",
++            "t",
++            "u",
++            "v",
++            "w",
++            "x",
++            "y",
++            "z",
++            "A",
++            "B",
++            "C",
++            "D",
++            "E",
++            "F",
++            "G",
++            "H",
++            "I",
++            "J",
++            "K",
++            "L",
++            "M",
++            "N",
++            "O",
++            "P",
++            "Q",
++            "R",
++            "S",
++            "T",
++            "U",
++            "V",
++            "W",
++            "X",
++            "Y",
++            "Z",
++          ],
++          // ✅ 核心：补全逻辑 - 自定义关键字 + 编辑器已输入单词 联动补全
++          provideCompletionItems: (model, position) => {
++            // 👉 获取当前输入的单词位置，用于精准替换补全内容
++            const word = model.getWordUntilPosition(position);
++            const range = {
++              startLineNumber: position.lineNumber,
++              startColumn: word.startColumn,
++              endLineNumber: position.lineNumber,
++              endColumn: word.endColumn,
++            };
++
++            // 👉 关键1：获取编辑器中所有已输入的文本内容
++            const fullText = model.getValue();
++            // 👉 关键2：正则提取【所有已输入的变量名/函数名/自定义单词】
++            // 正则规则：匹配 C++ 合法标识符 (字母/下划线开头，后跟字母/数字/下划线)，完美适配编程语法
++            const wordRegex = /\b[a-zA-Z_][a-zA-Z0-9_]*\b/g;
++            const matchedWords = fullText.match(wordRegex) || [];
+ 
+-  async componentDidUpdate(prevProps) {
+-    const {
+-      value, language,
+-    } = this.props;
+-    const { monaco } = await load([language]);
+-    const { editor, model } = this;
+-    const { LF } = monaco.editor.EndOfLinePreference;
+-    if (model && editor && this.props.value != null && this.props.value !== model.getValue(LF, false)) {
+-      this.__prevent_trigger_change_event = true;
+-      editor.pushUndoStop();
+-      model.pushEditOperations(
+-        [],
+-        [
+-          {
+-            range: model.getFullModelRange(),
+-            text: value!,
++            // 👉 关键3：合并 + 去重 + 去短无效词
++            const allWords = Array.from(
++              new Set([
++                ...CUSTOM_KEYWORDS, // 自定义关键字在前（优先级高）
++                ...matchedWords, // 编辑器已输入的单词在后
++              ])
++            ).filter((word) => word.length >= 1); // 过滤空字符
++
++            // 👉 关键4：生成补全候选列表，区分类型+高优先级排序
++            const suggestions = allWords.map((keyword) => {
++              // 判断是否是自定义关键字，区分图标和优先级
++              const isCustomKeyword = CUSTOM_KEYWORDS.includes(keyword);
++              return {
++                label: keyword, // 补全显示的文本
++                // ✅ 自定义关键字 = 关键字图标，用户输入的单词 = 变量图标，原生区分，体验更好
++                kind: isCustomKeyword
++                  ? monaco.languages.CompletionItemKind.Keyword
++                  : monaco.languages.CompletionItemKind.Variable,
++                insertText: keyword, // 插入到编辑器的文本
++                range: range,
++                // ✅ 排序规则：自定义关键字 永远排在最前面，用户输入的单词按字母排序
++                sortText: isCustomKeyword ? `0${keyword}` : `1${keyword}`,
++                // ✅ hover提示：区分自定义关键字和用户变量，更友好
++                detail: isCustomKeyword ? "自定义关键字" : "已输入变量/单词",
++              };
++            });
++            return { suggestions };
+           },
+-        ],
+-        () => null,
++        });
++      this.disposable.push(completionDisposable);
++    };
++
++    async componentDidMount() {
++      const value = this.props.value || "";
++      const { language } = this.props;
++      const { monaco, registerAction, customOptions } = await load([language]);
++      const uri = monaco.Uri.parse(
++        `hydro:${UiContext.pdoc.pid || UiContext.pdoc.docId}.${language}`
+       );
+-      editor.pushUndoStop();
+-      this.__prevent_trigger_change_event = false;
+-    }
+-    if (model && editor && prevProps.language !== language) {
+-      const val = model.getValue(LF, false);
+-      model.dispose();
+-      const uri = monaco.Uri.parse(`hydro:${UiContext.pdoc.pid || UiContext.pdoc.docId}.${language}`);
+-      this.model = monaco.editor.getModel(uri) || monaco.editor.createModel(val, language, uri);
+-      editor.setModel(this.model);
+-    }
+-    if (editor && this.props.settings) {
+-      editor.updateOptions(this.props.settings);
++      this.model =
++        monaco.editor.getModel(uri) ||
++        monaco.editor.createModel(value, language, uri);
++      if (this.containerElement) {
++        const config: monaco.editor.IStandaloneEditorConstructionOptions = {
++          theme: "vs-dark", // 动态切换为暗黑主题
++          fontFamily: UserContext.codeFontFamily,
++          ...customOptions,
++          minimap: { enabled: false },
++          lineNumbers: "on",
++          glyphMargin: true,
++          lightbulb: { enabled: monaco.editor.ShowLightbulbIconMode.On },
++          model: this.model,
++          fontLigatures: "",
++          lineNumbersMinChars: 3,
++        };
++        this.editor = monaco.editor.create(this.containerElement, config);
++        registerAction(this.editor, this.model);
++        this.disposable.push(
++          this.editor.onDidChangeModelContent((event) => {
++            if (!this.__prevent_trigger_change_event) {
++              this.props.handleUpdateCode?.(
++                this.editor.getValue({ lineEnding: "\n", preserveBOM: false }),
++                event
++              );
++            }
++          })
++        );
++        (window as any).editor = this.editor;
++        (window as any).monaco = monaco;
++        ctx.scratchpad.init(this.editor, monaco);
++      }
++
++      // 然后在 componentDidMount 和 componentDidUpdate 语言切换处调用：
++      this.registerCustomCompletion(monaco, language);
+     }
+-    if (this.props.pendingCommand) {
+-      editor.focus();
+-      editor.getAction(this.props.pendingCommand)?.run();
+-      this.props.commandDone();
++
++    async componentDidUpdate(prevProps) {
++      const { value, language } = this.props;
++      const { monaco } = await load([language]);
++      const { editor, model } = this;
++      const { LF } = monaco.editor.EndOfLinePreference;
++      if (
++        model &&
++        editor &&
++        this.props.value != null &&
++        this.props.value !== model.getValue(LF, false)
++      ) {
++        this.__prevent_trigger_change_event = true;
++        editor.pushUndoStop();
++        model.pushEditOperations(
++          [],
++          [
++            {
++              range: model.getFullModelRange(),
++              text: value!,
++            },
++          ],
++          () => null
++        );
++        editor.pushUndoStop();
++        this.__prevent_trigger_change_event = false;
++      }
++      if (model && editor && prevProps.language !== language) {
++        const val = model.getValue(LF, false);
++        model.dispose();
++        const uri = monaco.Uri.parse(
++          `hydro:${UiContext.pdoc.pid || UiContext.pdoc.docId}.${language}`
++        );
++        this.model =
++          monaco.editor.getModel(uri) ||
++          monaco.editor.createModel(val, language, uri);
++        editor.setModel(this.model);
++
++        this.registerCustomCompletion(monaco, language);
++      }
++      if (editor && this.props.settings) {
++        editor.updateOptions(this.props.settings);
++      }
++      if (this.props.pendingCommand) {
++        editor.focus();
++        editor.getAction(this.props.pendingCommand)?.run();
++        this.props.commandDone();
++      }
+     }
+-  }
+ 
+-  componentWillUnmount() {
+-    if (this.editor) this.editor.dispose();
+-    if (this.model) this.model.dispose();
+-    this.disposable.map((i) => i.dispose());
+-  }
++    componentWillUnmount() {
++      if (this.editor) this.editor.dispose();
++      if (this.model) this.model.dispose();
++      this.disposable.map((i) => i.dispose());
++    }
+ 
+-  assignRef = (component) => {
+-    this.containerElement = component;
+-  };
++    assignRef = (component) => {
++      this.containerElement = component;
++    };
+ 
+-  render() {
+-    return (
+-      <div
+-        ref={this.assignRef}
+-        style={{
+-          height: '100%',
+-          width: '100%',
+-        }}
+-        className="ScratchpadMonacoEditor"
+-      >
+-        <div className="loader-container"><div className="loader"></div></div>
+-      </div>
+-    );
++    render() {
++      return (
++        <div
++          ref={this.assignRef}
++          style={{
++            height: "100%",
++            width: "100%",
++          }}
++          className="ScratchpadMonacoEditor"
++        >
++          <div className="loader-container">
++            <div className="loader"></div>
++          </div>
++        </div>
++      );
++    }
+   }
+-});
++);
+diff --git a/packages/ui-default/components/scratchpad/ScratchpadPretestContainer.jsx b/packages/ui-default/components/scratchpad/ScratchpadPretestContainer.jsx
+index 04bd2285..5b500262 100644
+--- a/packages/ui-default/components/scratchpad/ScratchpadPretestContainer.jsx
++++ b/packages/ui-default/components/scratchpad/ScratchpadPretestContainer.jsx
+@@ -1,24 +1,52 @@
+-import { Allotment } from 'allotment';
+-import { AnsiUp } from 'ansi_up';
+-import React from 'react';
+-import { connect } from 'react-redux';
+-import Icon from 'vj/components/react/IconComponent';
+-import { i18n } from 'vj/utils';
+-import DataInput from './DataInputComponent';
+-import Panel from './PanelComponent';
++import { Allotment } from "allotment";
++import { AnsiUp } from "ansi_up";
++import React from "react";
++import { connect } from "react-redux";
++import Icon from "vj/components/react/IconComponent";
++import { i18n } from "vj/utils";
++import DataInput from "./DataInputComponent";
++import Panel from "./PanelComponent";
++import PannelButton from "./PanelButtonComponent";
++import { getAvailableLangs, i18n, request } from "vj/utils";
++import Toolbar, {
++  ToolbarButtonComponent as ToolbarButton,
++  ToolbarItemComponent as ToolbarItem,
++  ToolbarSplitComponent as ToolbarSplit,
++} from "./ToolbarComponent";
+ 
+ const AU = new AnsiUp();
+ 
+ const mapStateToProps = (state) => ({
++  pretestVisible: state.ui.pretest.visible,
++  recordsVisible: state.ui.records.visible,
++  isPosting: state.ui.isPosting,
++  isRunning: state.pretest.isRunning,
++  pretestWaitSec: state.ui.pretestWaitSec,
++  editorLang: state.editor.lang,
++  editorCode: state.editor.code,
++  pretestInput: state.pretest.input,
++
+   input: state.pretest.input,
+   output: state.pretest.output,
+   rid: state.pretest.rid,
+ });
+ 
+ const mapDispatchToProps = (dispatch) => ({
++  postPretest(props) {
++    const req = request.post(UiContext.postSubmitUrl, {
++      lang: props.editorLang,
++      code: props.editorCode,
++      input: [props.pretestInput],
++      pretest: true,
++    });
++    dispatch({
++      type: "SCRATCHPAD_POST_PRETEST",
++      payload: req,
++    });
++  },
+   handleDataChange(type, value) {
+     dispatch({
+-      type: 'SCRATCHPAD_PRETEST_DATA_CHANGE',
++      type: "SCRATCHPAD_PRETEST_DATA_CHANGE",
+       payload: {
+         type,
+         value,
+@@ -28,31 +56,59 @@ const mapDispatchToProps = (dispatch) => ({
+ });
+ 
+ // eslint-disable-next-line react-refresh/only-export-components
+-export default connect(mapStateToProps, mapDispatchToProps)(class ScratchpadPretestContainer extends React.PureComponent {
+-  render() {
+-    return (
+-      <Panel
+-        title={(
+-          <span>
+-            <Icon name="edit" />
+-            {' '}
+-            {i18n('Pretest')}
+-          </span>
+-        )}
+-      >
+-        <Allotment>
+-          <DataInput
+-            title={i18n('Input')}
+-            value={this.props.input}
+-            onChange={(v) => this.props.handleDataChange('input', v)}
+-          />
+-          <DataInput
+-            title={i18n('Output')}
+-            value={AU.ansi_to_html(this.props.output)}
+-            html
+-          />
+-        </Allotment>
+-      </Panel>
+-    );
++export default connect(
++  mapStateToProps,
++  mapDispatchToProps
++)(
++  class ScratchpadPretestContainer extends React.PureComponent {
++    render() {
++      let canUsePretest = UiContext.pdoc.config?.type === "default";
++      return (
++        <Panel
++          title={
++            <span>
++              <Icon name="edit" /> {i18n("Pretest")}
++            </span>
++          }
++          rightbuttons={
++            canUsePretest && (
++              <ToolbarButton
++                disabled={
++                  this.props.isPosting ||
++                  this.props.isRunning ||
++                  !!this.props.pretestWaitSec
++                }
++                className="scratchpad__toolbar__pretest"
++                onClick={() => this.props.postPretest(this.props)}
++                data-global-hotkey="f9"
++                data-tooltip={`${i18n("Pretest Your Code")} (F9)`}
++              >
++                <Icon name="debug" /> {i18n("Run Pretest")}{" "}
++                {this.props.pretestWaitSec
++                  ? `(${this.props.pretestWaitSec}s)`
++                  : "(F9)"}
++              </ToolbarButton>
++            )
++          }
++        >
++          <Allotment proportionalLayout={false}>
++            <Allotment.Pane preferredSize="40%">
++              <DataInput
++                title={i18n("Input")}
++                value={this.props.input}
++                onChange={(v) => this.props.handleDataChange("input", v)}
++              />
++            </Allotment.Pane>
++            <Allotment.Pane preferredSize="60%">
++              <DataInput
++                title={AU.ansi_to_html(i18n("Output"))}
++                value={AU.ansi_to_html(this.props.output)}
++                html
++              />
++            </Allotment.Pane>
++          </Allotment>
++        </Panel>
++      );
++    }
+   }
+-});
++);
+diff --git a/packages/ui-default/components/scratchpad/ScratchpadToolbarContainer.jsx b/packages/ui-default/components/scratchpad/ScratchpadToolbarContainer.jsx
+index 6316b5ab..ceb5e384 100644
+--- a/packages/ui-default/components/scratchpad/ScratchpadToolbarContainer.jsx
++++ b/packages/ui-default/components/scratchpad/ScratchpadToolbarContainer.jsx
+@@ -1,14 +1,14 @@
+-import _ from 'lodash';
+-import PropTypes from 'prop-types';
+-import React from 'react';
+-import { connect } from 'react-redux';
+-import Icon from 'vj/components/react/IconComponent';
+-import { getAvailableLangs, i18n, request } from 'vj/utils';
++import _ from "lodash";
++import PropTypes from "prop-types";
++import React from "react";
++import { connect } from "react-redux";
++import Icon from "vj/components/react/IconComponent";
++import { getAvailableLangs, i18n, request } from "vj/utils";
+ import Toolbar, {
+   ToolbarButtonComponent as ToolbarButton,
+   ToolbarItemComponent as ToolbarItem,
+   ToolbarSplitComponent as ToolbarSplit,
+-} from './ToolbarComponent';
++} from "./ToolbarComponent";
+ 
+ const mapStateToProps = (state) => ({
+   pretestVisible: state.ui.pretest.visible,
+@@ -25,13 +25,13 @@ const mapStateToProps = (state) => ({
+ const mapDispatchToProps = (dispatch) => ({
+   togglePanel(uiElement) {
+     dispatch({
+-      type: 'SCRATCHPAD_UI_TOGGLE_VISIBILITY',
++      type: "SCRATCHPAD_UI_TOGGLE_VISIBILITY",
+       payload: { uiElement },
+     });
+   },
+   setEditorLanguage(lang) {
+     dispatch({
+-      type: 'SCRATCHPAD_EDITOR_SET_LANG',
++      type: "SCRATCHPAD_EDITOR_SET_LANG",
+       payload: lang,
+     });
+   },
+@@ -43,7 +43,7 @@ const mapDispatchToProps = (dispatch) => ({
+       pretest: true,
+     });
+     dispatch({
+-      type: 'SCRATCHPAD_POST_PRETEST',
++      type: "SCRATCHPAD_POST_PRETEST",
+       payload: req,
+     });
+   },
+@@ -53,19 +53,19 @@ const mapDispatchToProps = (dispatch) => ({
+       code: props.editorCode,
+     });
+     dispatch({
+-      type: 'SCRATCHPAD_POST_SUBMIT',
++      type: "SCRATCHPAD_POST_SUBMIT",
+       payload: req,
+     });
+   },
+   loadSubmissions() {
+     dispatch({
+-      type: 'SCRATCHPAD_RECORDS_LOAD_SUBMISSIONS',
++      type: "SCRATCHPAD_RECORDS_LOAD_SUBMISSIONS",
+       payload: request.get(UiContext.getSubmissionsUrl),
+     });
+   },
+   tick() {
+     dispatch({
+-      type: 'SCRATCHPAD_WAITING_TICK',
++      type: "SCRATCHPAD_WAITING_TICK",
+     });
+   },
+ });
+@@ -74,118 +74,114 @@ const availableLangs = getAvailableLangs(UiContext.pdoc.config.langs);
+ const keys = Object.keys(availableLangs);
+ 
+ // eslint-disable-next-line react-refresh/only-export-components
+-export default connect(mapStateToProps, mapDispatchToProps)(class ScratchpadToolbarContainer extends React.PureComponent {
+-  static contextTypes = {
+-    store: PropTypes.object,
+-  };
++export default connect(
++  mapStateToProps,
++  mapDispatchToProps
++)(
++  class ScratchpadToolbarContainer extends React.PureComponent {
++    static contextTypes = {
++      store: PropTypes.object,
++    };
+ 
+-  constructor(props) {
+-    super(props);
+-    if (!availableLangs[this.props.editorLang]) {
+-      // preference not allowed
+-      const key = this.props.editorLang ? keys.filter((i) => availableLangs[i].pretest)
+-        .find((i) => availableLangs[i].pretest.split('.')[0] === this.props.editorLang.split('.')[0]) : '';
+-      this.props.setEditorLanguage(key || keys[0]);
++    constructor(props) {
++      super(props);
++      if (!availableLangs[this.props.editorLang]) {
++        // preference not allowed
++        const key = this.props.editorLang
++          ? keys
++              .filter((i) => availableLangs[i].pretest)
++              .find(
++                (i) =>
++                  availableLangs[i].pretest.split(".")[0] ===
++                  this.props.editorLang.split(".")[0]
++              )
++          : "";
++        this.props.setEditorLanguage(key || keys[0]);
++      }
+     }
+-  }
+-
+-  componentDidMount() {
+-    if (this.props.recordsVisible) this.props.loadSubmissions();
+-  }
+ 
+-  componentDidUpdate() {
+-    if (this.props.pretestWaitSec > 0 || this.props.submitWaitSec > 0) {
+-      setTimeout(() => this.props.tick(), 1000);
++    componentDidMount() {
++      if (this.props.recordsVisible) this.props.loadSubmissions();
+     }
+-  }
+ 
+-  render() {
+-    let canUsePretest = UiContext.pdoc.config?.type === 'default';
+-    const langInfo = availableLangs[this.props.editorLang];
+-    if (UiContext.pdoc.config?.type === 'remote_judge' && langInfo) {
+-      if (langInfo.pretest) canUsePretest = true;
+-      if (langInfo.validAs && !langInfo.hidden) canUsePretest = true;
++    componentDidUpdate() {
++      if (this.props.pretestWaitSec > 0 || this.props.submitWaitSec > 0) {
++        setTimeout(() => this.props.tick(), 1000);
++      }
+     }
+-    if (langInfo?.pretest === false) canUsePretest = false;
+-    return (
+-      <Toolbar>
+-        {canUsePretest && (
+-          <ToolbarButton
+-            disabled={this.props.isPosting || this.props.isRunning || !!this.props.pretestWaitSec}
+-            className="scratchpad__toolbar__pretest"
+-            onClick={() => this.props.postPretest(this.props)}
+-            data-global-hotkey="f9"
+-            data-tooltip={`${i18n('Pretest Your Code')} (F9)`}
+-          >
+-            <Icon name="debug" />
+-            {' '}
+-            {i18n('Run Pretest')}
+-            {' '}
+-            {this.props.pretestWaitSec ? `(${this.props.pretestWaitSec}s)` : '(F9)'}
+-          </ToolbarButton>
+-        )}
+-        <ToolbarButton
+-          disabled={this.props.isPosting || !!this.props.submitWaitSec}
+-          className="scratchpad__toolbar__submit"
+-          onClick={() => this.props.postSubmit(this.props)}
+-          data-global-hotkey="f10"
+-          data-tooltip={`${i18n('Submit Your Code')} (F10)`}
+-        >
+-          <Icon name="play" />
+-          {' '}
+-          {i18n('Submit Solution')}
+-          {' '}
+-          {this.props.submitWaitSec ? `(${this.props.submitWaitSec}s)` : '(F10)'}
+-        </ToolbarButton>
+-        <ToolbarButton
+-          data-global-hotkey="alt+q"
+-          data-tooltip={`${i18n('Quit Scratchpad')} (Alt+Q)`}
+-          name="problem-sidebar__quit-scratchpad"
+-        >
+-          <Icon name="close" />
+-          {' '}
+-          {i18n('Exit')}
+-          {' '}
+-          (Alt+Q)
+-        </ToolbarButton>
+-        <ToolbarItem>
+-          <select
+-            className="select"
+-            disabled={this.props.isPosting}
+-            value={this.props.editorLang}
+-            onChange={(ev) => this.props.setEditorLanguage(ev.target.value)}
+-          >
+-            {_.map(availableLangs, (val, key) => (
+-              <option value={key} key={key}>{val.display}</option>
+-            ))}
+-          </select>
+-        </ToolbarItem>
+-        <ToolbarSplit />
+-        {canUsePretest && (
+-          <ToolbarButton
+-            activated={this.props.pretestVisible}
+-            onClick={() => this.props.togglePanel('pretest')}
+-            data-global-hotkey="alt+p"
+-            data-tooltip={`${i18n('Toggle Pretest Panel')} (Alt+P)`}
+-          >
+-            <Icon name="edit" />
+-            {' '}
+-            {i18n('Pretest')}
+-          </ToolbarButton>
+-        )}
+-        {UiContext.canViewRecord && (
++
++    render() {
++      let canUsePretest = UiContext.pdoc.config?.type === "default";
++      const langInfo = availableLangs[this.props.editorLang];
++      if (UiContext.pdoc.config?.type === "remote_judge" && langInfo) {
++        if (langInfo.pretest) canUsePretest = true;
++        if (langInfo.validAs && !langInfo.hidden) canUsePretest = true;
++      }
++      if (langInfo?.pretest === false) canUsePretest = false;
++      return (
++        <Toolbar>
++          {UiContext.useAltq && (
++            <ToolbarButton
++              data-global-hotkey="alt+q"
++              data-tooltip={`${i18n("Quit Scratchpad")} (Alt+Q)`}
++              name="problem-sidebar__quit-scratchpad"
++            >
++              <Icon name="close" /> {i18n("Exit")} (Alt+Q)
++            </ToolbarButton>
++          )}
++          {UiContext.useAltq && (
++            <ToolbarItem>
++              <select
++                className="select"
++                disabled={this.props.isPosting}
++                value={this.props.editorLang}
++                onChange={(ev) => this.props.setEditorLanguage(ev.target.value)}
++              >
++                {_.map(availableLangs, (val, key) => (
++                  <option value={key} key={key}>
++                    {val.display}
++                  </option>
++                ))}
++              </select>
++            </ToolbarItem>
++          )}
++
++          {UiContext.canViewRecord && (
++            <ToolbarButton
++              activated={this.props.recordsVisible}
++              onClick={() => this.props.togglePanel("records")}
++              data-global-hotkey="alt+r"
++              data-tooltip={`${i18n("Toggle Records Panel")} (Alt+R)`}
++            >
++              <Icon name="flag" /> {i18n("Records")}
++            </ToolbarButton>
++          )}
++          <ToolbarSplit />
++          {canUsePretest && (
++            <ToolbarButton
++              activated={this.props.pretestVisible}
++              onClick={() => this.props.togglePanel("pretest")}
++              data-global-hotkey="alt+p"
++              data-tooltip={`${i18n("Toggle Pretest Panel")} (Alt+P)`}
++            >
++              <Icon name="edit" /> {i18n("Pretest")}
++            </ToolbarButton>
++          )}
++
+           <ToolbarButton
+-            activated={this.props.recordsVisible}
+-            onClick={() => this.props.togglePanel('records')}
+-            data-global-hotkey="alt+r"
+-            data-tooltip={`${i18n('Toggle Records Panel')} (Alt+R)`}
++            disabled={this.props.isPosting || !!this.props.submitWaitSec}
++            // className="toolbar-btn-right"
++            onClick={() => this.props.postSubmit(this.props)}
++            data-global-hotkey="f10"
++            data-tooltip={`${i18n("Submit Your Code")} (F10)`}
+           >
+-            <Icon name="flag" />
+-            {' '}
+-            {i18n('Records')}
++            <Icon name="play" /> {i18n("Submit Solution")}{" "}
++            {this.props.submitWaitSec
++              ? `(${this.props.submitWaitSec}s)`
++              : "(F10)"}
+           </ToolbarButton>
+-        )}
+-      </Toolbar>
+-    );
++        </Toolbar>
++      );
++    }
+   }
+-});
++);
+diff --git a/packages/ui-default/components/scratchpad/Toolbar.page.styl b/packages/ui-default/components/scratchpad/Toolbar.page.styl
+index a7b09b56..9c5a6552 100644
+--- a/packages/ui-default/components/scratchpad/Toolbar.page.styl
++++ b/packages/ui-default/components/scratchpad/Toolbar.page.styl
+@@ -35,7 +35,7 @@
+     font-size: rem($font-size-icon)
+     margin-right: 2px
+ 
+-  &.enabled:hover
++  &.enabled:hover 
+     color: $toolbar-fore-hover
+     background: $toolbar-bg-hover
+ 
+@@ -51,3 +51,9 @@
+   width: 1px
+   height: 1rem
+   background: #DDD
++
++// 单个按钮居右的样式
++.toolbar-btn-right {
++  margin-left: auto; // 核心魔法属性！flex布局下，这个样式会让元素自动靠右
++  margin-right: 30px;
++}
+\ No newline at end of file
+diff --git a/packages/ui-default/components/scratchpad/index.tsx b/packages/ui-default/components/scratchpad/index.tsx
+index d7020315..6c6aa3b9 100644
+--- a/packages/ui-default/components/scratchpad/index.tsx
++++ b/packages/ui-default/components/scratchpad/index.tsx
+@@ -1,5 +1,6 @@
+ import ProblemIcon from '@vscode/codicons/src/icons/file.svg?react';
+ import SettingsIcon from '@vscode/codicons/src/icons/settings-gear.svg?react';
++import NotebookIcon from '@vscode/codicons/src/icons/notebook.svg?react';
+ import { Allotment } from 'allotment';
+ import $ from 'jquery';
+ import _ from 'lodash';
+@@ -13,6 +14,7 @@ import ScratchpadPretest from './ScratchpadPretestContainer';
+ import ScratchpadRecords from './ScratchpadRecordsContainer';
+ import ScratchpadSettings from './ScratchpadSettings';
+ import ScratchpadToolbar from './ScratchpadToolbarContainer';
++import SmNotebook from './SmNotebook';
+ 
+ const pages = {
+   problem: {
+@@ -23,6 +25,11 @@ const pages = {
+     icon: () => <SettingsIcon />,
+     component: () => <ScratchpadSettings />,
+   },
++
++  notebook: {
++    icon: () => <NotebookIcon />,
++    component: () => <SmNotebook />,
++  }
+ };
+ 
+ let rerenderCallback = null;
+diff --git a/packages/ui-default/components/scratchpad/scratchpad.page.styl b/packages/ui-default/components/scratchpad/scratchpad.page.styl
+index 863b9342..8c1058ec 100644
+--- a/packages/ui-default/components/scratchpad/scratchpad.page.styl
++++ b/packages/ui-default/components/scratchpad/scratchpad.page.styl
+@@ -17,11 +17,25 @@
+   height: 100%
+   overflow: auto
+ 
+-.scratchpad__toolbar__pretest.enabled:hover .icon
+-  color: red
++.scratchpad__toolbar__pretest
++  padding: rem(5px) rem(8px); // ✅ 优化：左右内边距加宽，点击区域更大
++  font-size: rem($font-size-small);
++  font-weight: normal;
++  border: 1px solid transparent;
++  outline: 0;
++  width: fit-content; // 保留你的宽度自适应文字 ✔️
++  height: 100%;       // ✅ 改回height:100%！适配上面的flex工具栏，完美生效
++  margin-right: 30px;
++  transition: all 0.2s linear; // ✅ 优化：all过渡，hover更丝滑
++  background-color: rgb(29, 28, 28);
++  color: rgb(255, 255, 255);
++  white-space: nowrap;
++  box-sizing: border-box;
++  cursor: pointer;
++  // ✅ 核心修复hover：删掉.icon的无效width，只保留颜色样式，语法正确
++  &.enabled:hover .icon
++    color: red; // ✅ 补全分号
+ 
+-.scratchpad__toolbar__submit.enabled:hover .icon
+-  color: green
+ 
+ .scratchpad__records__table
+   &.loading
