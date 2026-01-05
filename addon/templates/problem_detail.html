@@ -26,6 +26,7 @@
   {{ set(UiContext, 'pretestConnUrl', "record-conn?pretest=1&uidOrName=" + handler.user._id + "&pid=" + pdoc.docId + "&domainId=" + handler.args.domainId) }}
 {% endif %}
   {% if callfrom and callfrom == 'slidev' %}
+	{{ set(UiContext, 'useAltq', false) }}
 window.addEventListener('load', function() {
     // 精准获取 name="problem-sidebar__open-scratchpad" 的li元素
     const targetLi = document.getElementsByName('problem-sidebar__open-scratchpad')[0];
@@ -37,6 +38,8 @@ window.addEventListener('load', function() {
 		console.log("not found _open-scratchpad");	
 	}
 });
+{% else %}
+	{{ set(UiContext, 'useAltq', true) }}
 {% endif %}
 </script>
 <div class="row" data-sticky-parent>
