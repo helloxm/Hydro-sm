@@ -1,4 +1,4 @@
-import { Handler, Types, param } from "hydrooj";
+import { Handler, Types, param, PRIV } from "hydrooj";
 import { readFileSync, existsSync } from "fs";
 import { join, resolve } from "path";
 
@@ -10,7 +10,11 @@ export class StaticSiteHandler extends Handler {
 
   @param("path", Types.String, "") // 匹配子路径（如 /static-site/path/to/file）
   async get({ path }) {
-    console.log("path: " + path);
+    if (!this.user.hasPriv(PRIV.PRIV_USER_PROFILE)) {
+      this.response.status = 401; // 未授权
+      this.response.body = "Unauthorized: Please login first";
+      return;
+    }
 
     //拼接完整文件路径，默认返回 index.html
     const filePath = path
