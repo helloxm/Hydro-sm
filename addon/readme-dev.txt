@@ -41,4 +41,6 @@ yarn build:ui:production   编译生成的文件放在 ui-default/public下面
 rm -rf /usr/local/share/.config/yarn/global/node_modules/@hydrooj/ui-default
 cp Hydro/packages/ui-default /usr/local/share/.config/yarn/global/node_modules/@hydrooj/ -rf
 
-
+---
+强制打patch，如果有冲突，会产生xxx.ts.rej, 再进行比对修改。
+git apply --reject --whitespace=fix 你的补丁文件.patch
