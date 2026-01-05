@@ -16,6 +16,8 @@ cp ../packages/hydrooj/src/handler/homework.ts /usr/local/share/.config/yarn/glo
 cp ../packages/hydrooj/src/handler/contest.ts /usr/local/share/.config/yarn/global/node_modules/hydrooj/src/handler/contest.ts -rf 
 cp ../packages/hydrooj/src/handler/problem.ts /usr/local/share/.config/yarn/global/node_modules/hydrooj/src/handler/problem.ts -rf 
 cp ../packages/hydrooj/setting.yaml /usr/local/share/.config/yarn/global/node_modules/hydrooj/setting.yaml -rf
+cp ../framework/framework/decorators.ts /usr/local/share/.config/yarn/global/node_modules/@hydrooj/framework/ -rf
+cp /root/Hydro-sm/addon/SmNotebook.tsx /root/Hydro/packages/ui-default/components/scratchpad/ -rf 
 # cp templates/* /root/addon/templates/ -rf
 # cp locales/* /root/addon/locales/ -rf 
 # cp public/* /root/addon/public/ -rf 
