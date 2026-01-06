@@ -8,13 +8,14 @@ import {
     NumberKeys,
     ObjectId,
     OplogModel,
-    paginate,
     param,
     PRIV,
     Types,
     UI,
     UserModel,
 } from 'hydrooj';
+
+import { paginate } from '@hydrooj/ui-default/backendlib/misc';
 
 export const TYPE_SMPASTE: 100 = 100;
 export interface SmpasteDoc {

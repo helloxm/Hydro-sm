@@ -44,3 +44,15 @@ cp Hydro/packages/ui-default /usr/local/share/.config/yarn/global/node_modules/@
 ---
 强制打patch，如果有冲突，会产生xxx.ts.rej, 再进行比对修改。
 git apply --reject --whitespace=fix 你的补丁文件.patch
+
+---
+使用yarn@4.10.3
+
+# 第一步：启用 corepack（同上，Node16.10+ 必做）
+corepack enable
+
+# 第二步：全局设置 Yarn 版本为 4.10.3
+corepack prepare yarn@4.10.3 --activate
+
+# 查看version
+yarn -v
