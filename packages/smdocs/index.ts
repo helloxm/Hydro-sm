@@ -3,7 +3,7 @@ import { readFileSync, existsSync } from "fs";
 import { join, resolve } from "path";
 
 // 静态站点根目录（根据实际路径调整）
-const STATIC_ROOT = resolve(__dirname, "./slidev");
+const STATIC_ROOT = resolve(__dirname, "./smdocs");
 
 export class StaticSiteHandler extends Handler {
   noCheckPermView = true; // 允许匿名访问（按需调整）
@@ -75,5 +75,5 @@ export class StaticSiteHandler extends Handler {
 
 export async function apply(ctx: Context) {
   // 配置静态子站根路径（如 /slidevsite 对应外部静态包）
-  ctx.Route("static_site", "/slidev/*path", StaticSiteHandler);
+  ctx.Route("smdocs_site", "/smdocs/*path", StaticSiteHandler);
 }
