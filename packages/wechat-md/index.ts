@@ -16,18 +16,8 @@ export class StaticSiteHandler extends Handler {
       return;
     }
 
-    const domainUser = await DomainModel.getDomainUser(
-        domainId, // 当前请求的域ID（如 ctx.domainId）
-        { _id: this.user._id } // 用户全局信息（_id=用户ID，priv=全局权限位）
-    );
-    if(!domainUser.join && !(this.user.priv & PRIV.PRIV_VIEW_ALL_DOMAIN)) {
-      this.response.status = 403;
-      this.response.body = "Forbidden: 请联系牛老师（微信：Quinus100),加入本课程后才能访问。";
-      return;
-    }
-
     // /d/domainId/wecha-md/*path
-    const rooDir = SATIC_ROOT;
+    const rootDir = STATIC_ROOT;
 
     //拼接完整文件路径，默认返回 index.html
     const filePath = path
@@ -75,5 +65,5 @@ export class StaticSiteHandler extends Handler {
 
 export async function apply(ctx: Context) {
   // 配置静态子站根路径（如 /slidevsite 对应外部静态包）
-  ctx.Route("static_site", "/wechat-md/*path", StaticSiteHandler);
+  ctx.Route("wechatmd_site", "/md/*path", StaticSiteHandler);
 }
