@@ -44,7 +44,7 @@ export class StaticSiteHandler extends Handler {
     // ✅ 校验3：文件是否存在
     if (!existsSync(filePath)) {
       this.response.status = 404;
-      this.response.body = "File not found by fangjt, path: "+filePath;
+      this.response.body = "File not found by fangjt";
       return;
     }
 
@@ -76,4 +76,27 @@ export class StaticSiteHandler extends Handler {
 export async function apply(ctx: Context) {
   // 配置静态子站根路径（如 /slidevsite 对应外部静态包）
   ctx.Route("smdocs_site", "/smdocs/*path", StaticSiteHandler);
+  ctx.Route("smdocs_main", "/smdocs/index.html", StaticSiteHandler);
+
+
+  ctx.injectUI(
+      'UserDropdown',
+      'smdocs_main',
+      (h) => ({
+          icon: 'link',
+          displayName: 'smdocs',
+          uid: h.user._id.toString(),
+      }),
+      PRIV.PRIV_USER_PROFILE,
+  );
+
+  ctx.i18n.load('zh', {
+      smdocs: '知识库',
+      smdocs_main: '知识库',
+  });
+  ctx.i18n.load('en', {
+      smdocs: 'SMDocs',
+      smdocs_main: 'SMDocs',
+  });
+
 }

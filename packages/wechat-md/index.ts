@@ -66,4 +66,26 @@ export class StaticSiteHandler extends Handler {
 export async function apply(ctx: Context) {
   // 配置静态子站根路径（如 /slidevsite 对应外部静态包）
   ctx.Route("wechatmd_site", "/md/*path", StaticSiteHandler);
+  ctx.Route("wechatmd_main", "/md/index.html", StaticSiteHandler);
+
+
+  ctx.injectUI(
+      'UserDropdown',
+      'wechatmd_main',
+      (h) => ({
+          icon: 'link',
+          displayName: 'wechat',
+          uid: h.user._id.toString(),
+      }),
+      PRIV.PRIV_EDIT_SYSTEM,
+  );
+
+  ctx.i18n.load('zh', {
+      wechat: '公众号',
+      wechat_main: '公众号',
+  });
+  ctx.i18n.load('en', {
+      wechat: 'Wechat Publish',
+      wechat_main: 'Wechat Publish',
+  });
 }
